@@ -71,14 +71,17 @@
     const params = new URLSearchParams(window.location.search);
     const missionId = params.get('id');
 
-    async function loadMission() {
+    function loadMission() {
       if (!missionId) { window.location.href = 'index.html'; return; }
       try {
-        const res = await fetch(`missions/${missionId}.json`);
-        if (!res.ok) throw new Error();
-        render(await res.json());
+        const stored = sessionStorage.getItem('currentMission');
+        if (!stored) throw new Error('no data');
+        const m = JSON.parse(stored);
+        if (m.id !== missionId) throw new Error('id mismatch');
+        render(m);
       } catch {
         document.getElementById('mission-title').textContent = 'Missione non trovata';
+        document.getElementById('mission-desc').textContent = 'Torna alla lista missioni e riprova.';
       }
     }
 

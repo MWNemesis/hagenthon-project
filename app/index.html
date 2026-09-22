@@ -48,14 +48,50 @@
   </main>
 
   <script>
+    // ── MISSIONS ────────────────────────────────────────────────────────────────
+    // Aggiungere qui le missioni generate con /generate-mission.
+    // Ogni oggetto corrisponde a un file JSON in missions/ (usato come sorgente
+    // per la generazione; a runtime si usa questo array, senza fetch).
     const MISSIONS = [
-      'missions/aggiungi-charge-code.json',
-      'missions/rimuovi-charge-code.json'
+      {
+        "id": "aggiungi-charge-code",
+        "title": "Aggiungi un charge code",
+        "description": "Impara ad aggiungere un codice progetto alla tua lista timesheet, inclusa la gestione di un codice inesistente.",
+        "icon": "🏷️",
+        "difficulty": "base",
+        "estimatedMinutes": 3,
+        "explanation": "Nella sezione 'Codici Progetto' del timesheet puoi aggiungere i codici dei progetti a cui sei assegnato. Si usa il campo di ricerca per trovare il codice e poi lo si aggiunge alla lista. Attenzione: se il codice non esiste, il portale mostrerà un errore. In questa missione proverai prima con un codice sbagliato (XXXXX) e poi aggiungerai il codice PLT2024A.",
+        "steps": [
+          { "id": "step-1", "description": "Digita XXXXX nel campo 'Codice progetto'", "action": "fill", "target": "searchInput", "errorMessage": "Non hai digitato nulla nel campo di ricerca." },
+          { "id": "step-2", "description": "Clicca 'Cerca' — apparirà un errore: codice non trovato", "action": "click", "target": "cercaBtn", "errorMessage": "Non hai cliccato il bottone 'Cerca'." },
+          { "id": "step-3", "description": "Nel modal di errore, clicca 'Riprova'", "action": "click", "target": "riprovaBtn", "errorMessage": "Non hai gestito il caso di codice non trovato: dovevi cliccare 'Riprova'." },
+          { "id": "step-4", "description": "Digita PLT2024A, clicca di nuovo 'Cerca' e poi clicca 'Aggiungi'", "action": "click", "target": "aggiungiBtn", "errorMessage": "Non hai completato l'aggiunta del codice: dovevi cliccare 'Aggiungi' nel modal dei dettagli." }
+        ],
+        "simulator": "missions/simulators/codici-progetto.html",
+        "successMessage": "Ottimo! Sai come aggiungere un charge code e come gestire un codice inesistente."
+      },
+      {
+        "id": "rimuovi-charge-code",
+        "title": "Rimuovi un charge code",
+        "description": "Impara a selezionare e rimuovere dalla lista i codici progetto non più necessari.",
+        "icon": "🗑️",
+        "difficulty": "base",
+        "estimatedMinutes": 2,
+        "explanation": "Se hai charge code obsoleti o non più assegnati, puoi rimuoverli dalla tua lista. Seleziona uno o più codici tramite le checkbox e usa il bottone 'Elimina selezionati'. Prima di procedere il portale ti chiederà una conferma.",
+        "steps": [
+          { "id": "step-1", "description": "Seleziona almeno un codice dalla tabella usando la checkbox", "action": "click", "target": "checkboxRow", "errorMessage": "Non hai selezionato nessun codice dalla tabella." },
+          { "id": "step-2", "description": "Clicca il bottone 'Elimina selezionati' (diventa rosso con la selezione)", "action": "click", "target": "eliminaSelezionatiBtn", "errorMessage": "Non hai cliccato 'Elimina selezionati'." },
+          { "id": "step-3", "description": "Nel modal di conferma, clicca 'Elimina' per procedere", "action": "click", "target": "confermaEliminaBtn", "errorMessage": "Non hai confermato l'eliminazione nel modal di conferma." }
+        ],
+        "simulator": "missions/simulators/codici-progetto.html",
+        "successMessage": "Ottimo! Hai rimosso correttamente i codici selezionati dalla tua lista timesheet."
+      }
     ];
+    // ───────────────────────────────────────────────────────────────────────────
 
     let allMissions = [];
 
-    async function loadMissions() {
+    function loadMissions() {
       const grid = document.getElementById('missions-grid');
 
       if (MISSIONS.length === 0) {
@@ -68,11 +104,7 @@
         return;
       }
 
-      const results = await Promise.all(MISSIONS.map(async path => {
-        try { return await (await fetch(path)).json(); } catch { return null; }
-      }));
-
-      allMissions = results.filter(Boolean);
+      allMissions = MISSIONS;
       document.getElementById('stat-total').textContent = allMissions.length;
       renderCards(allMissions);
     }
@@ -95,10 +127,15 @@
       renderCards(filtered);
     }
 
+    function goMission(id) {
+      const m = allMissions.find(m => m.id === id);
+      if (m) sessionStorage.setItem('currentMission', JSON.stringify(m));
+    }
+
     function missionCard(m) {
       const badgeClass = { base: 'badge-base', medio: 'badge-medio', avanzato: 'badge-avanzato' }[m.difficulty] || 'badge-base';
       return `
-        <a class="mission-card" href="mission.html?id=${m.id}">
+        <a class="mission-card" href="mission.html?id=${m.id}" onclick="goMission('${m.id}')">
           <div class="mission-card-top">
             <div class="mission-icon">${m.icon || '📌'}</div>
             <span class="badge ${badgeClass}">${m.difficulty || 'base'}</span>
