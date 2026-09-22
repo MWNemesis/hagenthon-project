@@ -1,0 +1,48 @@
+{
+  "id": "example-mission",
+  "title": "Esempio: Creare un nuovo ticket",
+  "description": "Impara a creare un ticket di supporto nel portale aziendale.",
+  "icon": "🎫",
+  "difficulty": "base",
+  "estimatedMinutes": 5,
+  "explanation": "Per aprire un ticket devi accedere alla sezione Supporto, cliccare su 'Nuovo Ticket', compilare i campi obbligatori (Titolo e Categoria) e infine confermare l'invio.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca sul menu 'Supporto' nella barra di navigazione",
+      "action": "click",
+      "target": "nav-supporto",
+      "errorMessage": "Non hai aperto il menu Supporto"
+    },
+    {
+      "id": "step-2",
+      "description": "Clicca sul pulsante 'Nuovo Ticket'",
+      "action": "click",
+      "target": "btn-nuovo-ticket",
+      "errorMessage": "Non hai cliccato su 'Nuovo Ticket'"
+    },
+    {
+      "id": "step-3",
+      "description": "Compila il campo Titolo",
+      "action": "fill",
+      "target": "field-titolo",
+      "errorMessage": "Il campo Titolo è obbligatorio e non è stato compilato"
+    },
+    {
+      "id": "step-4",
+      "description": "Seleziona una Categoria dal menu a tendina",
+      "action": "fill",
+      "target": "field-categoria",
+      "errorMessage": "Non hai selezionato la categoria del ticket"
+    },
+    {
+      "id": "step-5",
+      "description": "Clicca su 'Invia' per confermare il ticket",
+      "action": "click",
+      "target": "btn-invia",
+      "errorMessage": "Non hai confermato l'invio del ticket"
+    }
+  ],
+  "simulator": "missions/simulators/example-mission.html",
+  "successMessage": "Ottimo! Hai creato correttamente il tuo primo ticket di supporto."
+}

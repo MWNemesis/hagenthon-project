@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risultato — PortalSim</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎯</div>
+      PortalSim
+    </a>
+  </header>
+
+  <main class="page-container">
+    <div id="result-card" class="result-card">
+      <div id="result-icon" class="result-icon"></div>
+      <h2 id="result-title"></h2>
+      <p id="result-subtitle" class="subtitle"></p>
+
+      <div id="steps-result" class="steps-result"></div>
+
+      <div class="result-actions">
+        <a id="btn-retry" class="btn-secondary" href="#">Riprova</a>
+        <a class="btn-primary-inline" href="index.html">Torna alle missioni</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/evaluator.js"></script>
+  <script>
+    function renderResult() {
+      const raw = sessionStorage.getItem('sessionResult');
+      if (!raw) { window.location.href = 'index.html'; return; }
+
+      const result  = JSON.parse(raw);
+      const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      const passed  = result.passed;
+
+      // Icona e titolo
+      const icon = document.getElementById('result-icon');
+      icon.classList.add(passed ? 'success' : 'error');
+      icon.textContent = passed ? '✅' : '❌';
+
+      document.getElementById('result-title').textContent =
+        passed ? 'Procedura completata!' : 'Procedura non corretta';
+
+      document.getElementById('result-subtitle').textContent =
+        passed
+          ? (mission.successMessage || 'Ottimo lavoro! Hai eseguito tutti i passaggi correttamente.')
+          : `Hai commesso ${result.errors} errore/i. Rileggi le istruzioni e riprova.`;
+
+      // Dettaglio step
+      const stepsEl = document.getElementById('steps-result');
+      stepsEl.innerHTML = result.steps.map(s => `
+        <div class="step-result-item">
+          <div class="step-result-icon">${s.ok ? '✅' : '❌'}</div>
+          <div class="step-result-info">
+            <div class="step-desc">${s.description}</div>
+            ${!s.ok ? `<div class="step-error">${s.errorMessage}</div>` : ''}
+          </div>
+        </div>`).join('');
+
+      // Bottone riprova
+      const missionId = mission.id;
+      document.getElementById('btn-retry').href = missionId
+        ? `mission.html?id=${missionId}`
+        : 'index.html';
+    }
+
+    renderResult();
+  </script>
+
+</body>
+</html>

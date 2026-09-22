@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore Portale — Missioni</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎯</div>
+      PortalSim
+    </a>
+  </header>
+
+  <main class="page-container">
+    <div class="page-header">
+      <h1>Scegli una missione</h1>
+      <p>Seleziona la procedura che vuoi imparare e mettiti alla prova nel simulatore.</p>
+    </div>
+
+    <div id="missions-grid" class="missions-grid">
+      <!-- Le missioni vengono caricate dinamicamente da missions/*.json -->
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>Caricamento missioni in corso...</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const MISSIONS = [
+      // Aggiungere qui i percorsi ai JSON delle missioni generate
+      // Es: 'missions/crea-ticket.json'
+    ];
+
+    async function loadMissions() {
+      const grid = document.getElementById('missions-grid');
+
+      if (MISSIONS.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🚧</div>
+            <p>Nessuna missione disponibile. Le missioni verranno aggiunte dagli agenti.</p>
+          </div>`;
+        return;
+      }
+
+      const cards = await Promise.all(MISSIONS.map(async (path) => {
+        try {
+          const res = await fetch(path);
+          return await res.json();
+        } catch {
+          return null;
+        }
+      }));
+
+      grid.innerHTML = cards
+        .filter(Boolean)
+        .map(m => missionCard(m))
+        .join('');
+    }
+
+    function missionCard(m) {
+      const badgeClass = { base: 'badge-base', medio: 'badge-medio', avanzato: 'badge-avanzato' }[m.difficulty] || 'badge-base';
+      return `
+        <a class="mission-card" href="mission.html?id=${m.id}">
+          <div class="mission-card-header">
+            <div class="mission-icon">${m.icon || '📌'}</div>
+            <span class="badge ${badgeClass}">${m.difficulty || 'base'}</span>
+          </div>
+          <h3>${m.title}</h3>
+          <p>${m.description}</p>
+          <div class="mission-card-footer">
+            <span>⏱ ${m.estimatedMinutes} min</span>
+            <span>📋 ${m.steps.length} step</span>
+          </div>
+        </a>`;
+    }
+
+    loadMissions();
+  </script>
+
+</body>
+</html>
