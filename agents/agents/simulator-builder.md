@@ -38,6 +38,11 @@ TARGET_LIST: ["navSupporto", "btnNuovoTicket", ...]  // target obbligatori
 
 ## Processo di analisi degli screenshot
 
+**Prima di costruire qualsiasi HTML**, esegui un'analisi globale su tutti gli screenshot
+contemporaneamente: palette colori, struttura comune (header/sidebar/footer), font e
+vocabolario UI condiviso. Costruisci il CSS `:root` una sola volta per tutto il simulatore.
+Solo dopo inizia a mappare gli elementi interattivi screenshot per screenshot.
+
 Per ogni screenshot fornito:
 
 1. **Identifica la struttura** della pagina:
