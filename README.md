@@ -67,6 +67,50 @@ Per il catalogo completo di skill e agenti disponibili → [agents/README.md](ag
 
 ---
 
+## Setup ambiente di generazione
+
+> **Nota:** l'app in `app/` funziona senza nessun setup — basta aprire `app/index.html` nel browser.
+> Il setup sotto è necessario solo per **generare nuove missioni** con gli agenti.
+
+### Prerequisiti
+
+- [Claude Code](https://claude.ai/code) (CLI o app desktop)
+
+### Installazione
+
+**1. Clona il repository**
+
+```bash
+git clone <url-repo>
+cd hagenthon-project
+```
+
+**2. Copia skill e agenti nella cartella di Claude Code**
+
+```bash
+mkdir -p .claude/agents
+cp agents/skills/*.md .claude/agents/
+cp agents/agents/*.md .claude/agents/
+```
+
+**3. Apri il progetto**
+
+```bash
+claude .
+```
+
+**4. Verifica le skill disponibili**
+
+Digita `/` nella chat — dovresti vedere `generate-mission`, `batch-generate`, `portal-analyzer` e le altre.
+
+**5. Genera la prima missione**
+
+```
+/generate-mission
+```
+
+---
+
 ## Schema JSON missione
 
 ```json

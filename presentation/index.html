@@ -620,8 +620,42 @@
     </div>
   </div>
 
-  <!-- 7. FLUSSO DI CREAZIONE -->
+  <!-- 7. OTTIMIZZAZIONE TOKEN E TEMPI -->
   <div class="slide" data-index="6">
+    <div class="eyebrow">Ottimizzazione</div>
+    <h2 class="text-center" style="margin-bottom:2rem;">
+      Skill e agenti progettati per essere <span class="hp">efficienti</span>
+    </h2>
+    <div class="cols-3 max-w">
+      <div class="card card-purple">
+        <div class="card-label hp">Parallelizzazione batch</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          <span style="font-family:monospace; color:var(--purple);">/batch-generate</span> lancia fino a
+          <strong style="color:var(--white);">3 missioni in contemporanea</strong> come subagent in background,
+          anziché attendere il completamento di ciascuna prima di avviare la successiva.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-label hd">Early exit su errori</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          <span style="font-family:monospace; color:var(--gray-400);">/validate-mission</span> salta il
+          <strong style="color:var(--white);">browser test</strong> (la fase più costosa) se la validazione
+          strutturale del JSON o dell'HTML rileva già errori bloccanti.
+        </p>
+      </div>
+      <div class="card card-green">
+        <div class="card-label hg">Analisi screenshot globale</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          Il <span style="font-family:monospace; color:var(--green);">simulator-builder</span> analizza tutti gli
+          screenshot in <strong style="color:var(--white);">un unico passaggio</strong> e genera il CSS
+          <code>:root</code> una sola volta, evitando token duplicati per ogni sezione.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. FLUSSO DI CREAZIONE -->
+  <div class="slide" data-index="7">
     <div class="eyebrow">Come si crea una missione</div>
     <h2 style="margin-bottom:2rem;">Un solo comando, <span class="hp">sei step</span></h2>
     <div class="cp-flow">
@@ -658,8 +692,8 @@
     </p>
   </div>
 
-  <!-- 8. TAKEAWAY -->
-  <div class="slide text-center" data-index="7">
+  <!-- 9. TAKEAWAY -->
+  <div class="slide text-center" data-index="8">
     <div class="eyebrow">In sintesi</div>
     <h2 style="margin-bottom:2rem;">Perché <span class="hp">Portal Simulator</span></h2>
     <div class="tw-list" style="margin:0 auto;">
@@ -686,8 +720,8 @@
     </div>
   </div>
 
-  <!-- 9. DEMO (spostata alla fine) -->
-  <div class="slide text-center" data-index="8">
+  <!-- 10. DEMO (spostata alla fine) -->
+  <div class="slide text-center" data-index="9">
     <div class="eyebrow">Live demo</div>
     <h2>Proviamolo <span class="hp">insieme</span></h2>
     <p class="tagline">Apri l'applicativo e segui una missione dal vivo</p>
@@ -703,7 +737,7 @@
   <span class="copy">© 2026 Accenture. Confidential. For internal use only.</span>
   <div class="nav">
     <button id="btn-prev" onclick="navigate(-1)" disabled>←</button>
-    <span class="nav-counter" id="counter">1 / 9</span>
+    <span class="nav-counter" id="counter">1 / 10</span>
     <button id="btn-next" onclick="navigate(1)">→</button>
   </div>
 </footer>
