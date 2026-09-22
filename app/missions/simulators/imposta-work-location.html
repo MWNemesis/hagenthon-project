@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore — Impostare la Work Location giornaliera</title>
+  <script src="../../js/tracker.js"></script>
+  <style>
+    :root {
+      --portal-primary: #4F46E5;
+      --portal-bg: #F9FAFB;
+      --portal-sidebar: #F3F4F6;
+      --portal-text: #374151;
+      --portal-border: #E5E7EB;
+      --portal-weekend-bg: #F9FAFB;
+      --portal-wl-label: #4F46E5;
+      --portal-select-text: #9CA3AF;
+      --portal-green: #4ADE80;
+      --portal-green-text: #166534;
+      --portal-orange: #F97316;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--portal-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Simulator bar ── */
+    .sim-bar {
+      background: #0f0f1a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+      z-index: 100;
+      border-bottom: 2px solid #A100FF;
+    }
+    .sim-bar-left { display: flex; align-items: center; gap: 10px; }
+    .sim-badge {
+      background: #A100FF;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .sim-mission-title { color: #cbd5e1; font-size: 13px; }
+    .sim-complete-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sim-complete-btn:hover { background: #15803d; }
+
+    /* ── Portal wrapper ── */
+    .portal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Portal header ── */
+    .pt-header {
+      background: white;
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 52px;
+      flex-shrink: 0;
+    }
+    .pt-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-right: 32px;
+      white-space: nowrap;
+    }
+    .pt-logo em { color: #10B981; font-style: normal; }
+    .pt-nav { display: flex; flex: 1; }
+    .pt-tab {
+      padding: 0 16px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #6B7280;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pt-tab:hover { color: #374151; background: #F9FAFB; }
+    .pt-tab.active { color: var(--portal-primary); border-bottom-color: var(--portal-primary); font-weight: 500; }
+    .pt-header-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .pt-icon-btn {
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #6B7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pt-avatar {
+      background: var(--portal-primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ── Timesheet action bar ── */
+    .ts-bar {
+      background: white;
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+    .ts-bar-left { display: flex; align-items: center; gap: 8px; }
+    .ts-period-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid #D1D5DB;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1E293B;
+      cursor: default;
+      white-space: nowrap;
+    }
+    .ts-period-dot { font-size: 10px; color: #374151; }
+    .ts-nav-btn {
+      background: white;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+    }
+    .ts-nav-btn:hover { background: #F9FAFB; }
+    .ts-week-label { font-size: 15px; font-weight: 600; color: #1E293B; padding: 0 2px; }
+    .ts-bar-right { display: flex; align-items: center; gap: 10px; }
+    .ts-azzera-btn {
+      background: white;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+    }
+    .ts-azzera-btn:hover { background: #F9FAFB; }
+    .ts-invia-btn {
+      background: var(--portal-green);
+      border: none;
+      border-radius: 6px;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--portal-green-text);
+      cursor: pointer;
+    }
+    .ts-invia-btn:hover { background: #22C55E; }
+
+    /* ── Main content ── */
+    .pt-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background: var(--portal-bg);
+    }
+
+    /* ── Timesheet grid ── */
+    .ts-grid-wrap {
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .ts-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    /* Column widths */
+    .ts-table col.col-project  { width: 27%; }
+    .ts-table col.col-day      { width: 9%; }
+    .ts-table col.col-tot      { width: 8%; }
+
+    /* Header row */
+    .ts-table thead th {
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      border-bottom: 1px solid var(--portal-border);
+      border-right: 1px solid #F3F4F6;
+      background: white;
+      line-height: 1.4;
+      vertical-align: bottom;
+    }
+    .ts-table thead th.th-project {
+      text-align: left;
+      padding-left: 16px;
+      color: #374151;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .ts-table thead th.th-weekend {
+      color: #B0B7C3;
+      background: var(--portal-weekend-bg);
+    }
+    .ts-table thead th.th-tot {
+      border-right: none;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    /* Body cells */
+    .ts-table tbody td {
+      padding: 7px 6px;
+      text-align: center;
+      border-bottom: 1px solid #F3F4F6;
+      border-right: 1px solid #F3F4F6;
+      vertical-align: middle;
+      font-size: 13px;
+      color: var(--portal-text);
+    }
+    .ts-table tbody td.td-last { border-right: none; }
+    .ts-table tbody tr:last-child td { border-bottom: none; }
+    .ts-table tbody td.td-weekend { background: var(--portal-weekend-bg); }
+
+    /* ── Work Location row ── */
+    .tr-wl td { padding: 6px 6px; }
+    .td-wl-label {
+      text-align: right !important;
+      padding-right: 14px !important;
+      font-weight: 700;
+      color: var(--portal-wl-label);
+      font-size: 13px;
+    }
+
+    /* WL dropdown button */
+    .wl-btn {
+      width: 100%;
+      height: 28px;
+      background: white;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 7px;
+      font-size: 12px;
+      color: var(--portal-text);
+      font-family: inherit;
+      transition: border-color 0.1s, background 0.1s;
+    }
+    .wl-btn:not([disabled]):hover {
+      background: #F9FAFB;
+      border-color: #9CA3AF;
+    }
+    .wl-btn[disabled] {
+      background: #F3F4F6;
+      border-color: #E5E7EB;
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+    .wl-btn.wl-selected {
+      background: var(--portal-primary);
+      border-color: var(--portal-primary);
+      color: white;
+    }
+    .wl-btn.wl-selected:hover {
+      background: #4338CA;
+      border-color: #4338CA;
+    }
+    .wl-val { flex: 1; text-align: left; font-weight: 500; }
+    .wl-caret { font-size: 9px; opacity: 0.55; flex-shrink: 0; }
+
+    /* ── Seleziona codice rows ── */
+    .tr-select td { height: 40px; }
+    .td-select-label {
+      text-align: left !important;
+      padding-left: 16px !important;
+      color: var(--portal-select-text);
+      font-size: 13px;
+    }
+
+    /* ── Footer rows ── */
+    .tr-ore-totali td {
+      border-top: 1px solid var(--portal-border);
+      background: white;
+    }
+    .td-ore-label {
+      text-align: right !important;
+      padding-right: 14px !important;
+      font-weight: 700;
+      color: #1E293B;
+      font-size: 13px;
+    }
+    .td-ore-tot {
+      font-weight: 700;
+      color: #1E293B;
+      text-align: center;
+    }
+
+    .tr-schedule td { background: white; }
+    .td-schedule-label {
+      text-align: right !important;
+      padding-right: 14px !important;
+      color: var(--portal-text);
+      font-size: 13px;
+    }
+    .td-schedule-val { font-weight: 500; color: #1E293B; }
+    .td-schedule-tot { font-weight: 600; color: #1E293B; border-right: none; }
+
+    .tr-straord td { background: white; }
+    .td-straord-label {
+      text-align: right !important;
+      padding-right: 14px !important;
+      color: var(--portal-text);
+      font-size: 13px;
+    }
+
+    /* ── Custom dropdown panel ── */
+    #wl-dropdown-panel {
+      position: fixed;
+      z-index: 500;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.14), 0 1px 5px rgba(0,0,0,0.08);
+      overflow: hidden;
+      min-width: 110px;
+      display: none;
+    }
+    .wl-opt-empty {
+      background: var(--portal-orange);
+      color: white;
+      padding: 9px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .wl-opt-empty:hover { background: #EA580C; }
+    .wl-opt {
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1E293B;
+      transition: background 0.08s;
+    }
+    .wl-opt:hover { background: #F5F5FF; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1C1C1E; color: white;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border-left: 4px solid #22C55E;
+      z-index: 400;
+      animation: fadeUp 0.25s ease;
+    }
+
+    /* ── Hint card ── */
+    .hint-card {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1b4b;
+      color: white;
+      border: 1px solid #4f46e5;
+      border-radius: 12px;
+      padding: 14px 18px;
+      max-width: 440px;
+      width: calc(100% - 48px);
+      box-shadow: 0 8px 32px rgba(79,70,229,.35);
+      z-index: 350;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: fadeUp .3s ease;
+    }
+    .hint-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .hint-text { flex: 1; }
+    .hint-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #a5b4fc; margin-bottom: 3px;
+    }
+    .hint-msg { font-size: 14px; color: #e0e7ff; line-height: 1.4; }
+    .hint-close {
+      background: none; border: none; color: #a5b4fc;
+      font-size: 16px; cursor: pointer; padding: 0 2px; flex-shrink: 0;
+    }
+    .hint-close:hover { color: white; }
+
+    @keyframes fadeUp {
+      from { transform: translateY(10px) translateX(-50%); opacity: 0; }
+      to   { transform: translateY(0)    translateX(-50%); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Simulator bar ── -->
+  <div class="sim-bar">
+    <div class="sim-bar-left">
+      <span class="sim-badge">SIMULATORE</span>
+      <span class="sim-mission-title" id="simTitle">Impostare la Work Location giornaliera</span>
+    </div>
+    <button class="sim-complete-btn" onclick="Tracker.complete()">&#10003; Completa missione</button>
+  </div>
+
+  <!-- ── Portal ── -->
+  <div class="portal">
+
+    <!-- Portal header -->
+    <header class="pt-header">
+      <div class="pt-logo"><em>Time</em>Track</div>
+      <nav class="pt-nav">
+        <span class="pt-tab active">Ore</span>
+        <span class="pt-tab">Codici Progetto</span>
+        <span class="pt-tab">Spese</span>
+        <span class="pt-tab">Rettifiche</span>
+        <span class="pt-tab">Riepilogo</span>
+        <span class="pt-tab">Preferenze</span>
+      </nav>
+      <div class="pt-header-right">
+        <button class="pt-icon-btn">&#128276;</button>
+        <button class="pt-icon-btn">?</button>
+        <button class="pt-icon-btn">&#9881;</button>
+        <div class="pt-avatar">MC</div>
+      </div>
+    </header>
+
+    <!-- Timesheet action bar -->
+    <div class="ts-bar">
+      <div class="ts-bar-left">
+        <div class="ts-period-badge">
+          <span class="ts-period-dot">&#9679;</span>
+          Settimana
+        </div>
+        <button class="ts-nav-btn">&#8249;</button>
+        <span class="ts-week-label">1 &#8211; 7 Set 2026</span>
+        <button class="ts-nav-btn">&#8250;</button>
+      </div>
+      <div class="ts-bar-right">
+        <button class="ts-azzera-btn">Azzera</button>
+        <button class="ts-invia-btn">Invia timesheet</button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="pt-main">
+      <div class="ts-grid-wrap">
+        <table class="ts-table">
+          <colgroup>
+            <col class="col-project" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-tot" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="th-project">Codici Progetto</th>
+              <th>Mar<br>1</th>
+              <th>Mer<br>2</th>
+              <th>Gio<br>3</th>
+              <th>Ven<br>4</th>
+              <th class="th-weekend">Sab<br>5</th>
+              <th class="th-weekend">Dom<br>6</th>
+              <th>Lun<br>7</th>
+              <th class="th-tot">Tot.</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- Work Location row -->
+            <tr class="tr-wl">
+              <td class="td-wl-label">Work Location</td>
+              <td>
+                <button
+                  data-track-id="dropdown-wl-mar"
+                  class="wl-btn"
+                  id="btn-wl-mar"
+                  onclick="openDropdown('mar', this)"
+                >
+                  <span class="wl-val" id="wl-mar-val"></span>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td>
+                <button
+                  data-track-id="dropdown-wl-mer"
+                  class="wl-btn"
+                  id="btn-wl-mer"
+                  onclick="openDropdown('mer', this)"
+                >
+                  <span class="wl-val" id="wl-mer-val"></span>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td>
+                <button class="wl-btn" id="btn-wl-gio" onclick="openDropdown('gio', this)">
+                  <span class="wl-val" id="wl-gio-val"></span>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td>
+                <button class="wl-btn" id="btn-wl-ven" onclick="openDropdown('ven', this)">
+                  <span class="wl-val" id="wl-ven-val"></span>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td class="td-weekend">
+                <button class="wl-btn" disabled>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td class="td-weekend">
+                <button class="wl-btn" disabled>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td>
+                <button class="wl-btn" id="btn-wl-lun" onclick="openDropdown('lun', this)">
+                  <span class="wl-val" id="wl-lun-val"></span>
+                  <span class="wl-caret">&#8964;</span>
+                </button>
+              </td>
+              <td class="td-last"></td>
+            </tr>
+
+            <!-- Seleziona codice rows -->
+            <tr class="tr-select">
+              <td class="td-select-label">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td><td class="td-last"></td>
+            </tr>
+            <tr class="tr-select">
+              <td class="td-select-label">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td><td class="td-last"></td>
+            </tr>
+            <tr class="tr-select">
+              <td class="td-select-label">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td><td class="td-last"></td>
+            </tr>
+            <tr class="tr-select">
+              <td class="td-select-label">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td><td class="td-last"></td>
+            </tr>
+            <tr class="tr-select">
+              <td class="td-select-label">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td><td class="td-last"></td>
+            </tr>
+
+            <!-- Ore totali -->
+            <tr class="tr-ore-totali">
+              <td class="td-ore-label">Ore totali</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td>
+              <td class="td-ore-tot td-last">0</td>
+            </tr>
+
+            <!-- Work Schedule -->
+            <tr class="tr-schedule">
+              <td class="td-schedule-label">Work Schedule</td>
+              <td class="td-schedule-val">8.0</td>
+              <td class="td-schedule-val">8.0</td>
+              <td class="td-schedule-val">8.0</td>
+              <td class="td-schedule-val">8.0</td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td class="td-schedule-val">8.0</td>
+              <td class="td-schedule-tot">40.0</td>
+            </tr>
+
+            <!-- Straordinario giornaliero -->
+            <tr class="tr-straord">
+              <td class="td-straord-label">Straordinario giornaliero</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td><td class="td-weekend"></td>
+              <td></td>
+              <td class="td-ore-tot td-last">0</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Custom dropdown panel (shared) ── -->
+  <div id="wl-dropdown-panel">
+    <div class="wl-opt-empty" onclick="selectWL('')">&#10003;</div>
+    <div class="wl-opt" onclick="selectWL('Home')">Home</div>
+    <div class="wl-opt" data-track-id="option-wl-sw" onclick="selectWL('SW')">SW</div>
+    <div class="wl-opt" data-track-id="option-wl-client" onclick="selectWL('Client')">Client</div>
+  </div>
+
+  <script>
+    // ── Dropdown state ────────────────────────────────────────────────
+    var activeDay = null;
+    var activeBtn = null;
+
+    function openDropdown(dayId, btn) {
+      var panel = document.getElementById('wl-dropdown-panel');
+      // Toggle: clicking the same open trigger closes the panel
+      if (activeDay === dayId && panel.style.display === 'block') {
+        closeDropdown();
+        return;
+      }
+      activeDay = dayId;
+      activeBtn = btn;
+      positionPanel(btn);
+    }
+
+    function positionPanel(btn) {
+      var panel = document.getElementById('wl-dropdown-panel');
+      var rect = btn.getBoundingClientRect();
+      panel.style.top  = (rect.bottom + 3) + 'px';
+      panel.style.left = rect.left + 'px';
+      panel.style.minWidth = Math.max(rect.width, 110) + 'px';
+      panel.style.display = 'block';
+    }
+
+    function closeDropdown() {
+      var panel = document.getElementById('wl-dropdown-panel');
+      panel.style.display = 'none';
+      activeDay = null;
+      activeBtn = null;
+    }
+
+    function selectWL(value) {
+      if (!activeBtn || !activeDay) { closeDropdown(); return; }
+
+      var valEl = document.getElementById('wl-' + activeDay + '-val');
+      if (valEl) valEl.textContent = value;
+
+      if (value) {
+        activeBtn.classList.add('wl-selected');
+      } else {
+        activeBtn.classList.remove('wl-selected');
+      }
+      activeBtn.dataset.currentValue = value;
+
+      closeDropdown();
+    }
+
+    // Close panel when clicking outside
+    document.addEventListener('click', function(e) {
+      var panel = document.getElementById('wl-dropdown-panel');
+      if (panel.style.display !== 'block') return;
+      if (e.target.closest('#wl-dropdown-panel')) return;
+      if (e.target.closest('.wl-btn')) return;
+      closeDropdown();
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────
+    (function init() {
+      var mission = {};
+      try { mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}'); } catch(e) {}
+      if (mission.title) document.getElementById('simTitle').textContent = mission.title;
+    })();
+
+    // ── Hint system ───────────────────────────────────────────────────
+    var HINT_DELAY = 20000;
+    var lastInteraction = Date.now();
+    var hintActive = false;
+
+    ['click', 'keydown', 'touchstart'].forEach(function(ev) {
+      document.addEventListener(ev, function() {
+        lastInteraction = Date.now();
+        if (hintActive) dismissHint();
+      }, { passive: true });
+    });
+
+    setInterval(function() {
+      if (hintActive) return;
+      if (Date.now() - lastInteraction < HINT_DELAY) return;
+      showNextHint();
+    }, 2000);
+
+    function showNextHint() {
+      var mission = {};
+      try { mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}'); } catch(e) {}
+      if (!mission.steps) return;
+
+      var log = Tracker.getLog();
+      var nextStep = null;
+      for (var i = 0; i < mission.steps.length; i++) {
+        var step = mission.steps[i];
+        var done = log.some(function(a) {
+          return a.action === step.action && a.targetId === step.target;
+        });
+        if (!done) { nextStep = step; break; }
+      }
+      if (!nextStep) return;
+
+      hintActive = true;
+      var card = document.createElement('div');
+      card.className = 'hint-card';
+      card.id = 'hint-card';
+      card.innerHTML =
+        '<span class="hint-icon">&#128161;</span>' +
+        '<div class="hint-text">' +
+          '<div class="hint-label">Suggerimento</div>' +
+          '<div class="hint-msg">' + nextStep.description + '</div>' +
+        '</div>' +
+        '<button class="hint-close" onclick="dismissHint()">&#10005;</button>';
+      document.body.appendChild(card);
+    }
+
+    function dismissHint() {
+      var card = document.getElementById('hint-card');
+      if (card) card.remove();
+      hintActive = false;
+      lastInteraction = Date.now();
+    }
+  </script>
+
+</body>
+</html>

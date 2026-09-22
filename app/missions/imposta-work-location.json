@@ -1,0 +1,41 @@
+{
+  "id": "imposta-work-location",
+  "title": "Impostare la Work Location giornaliera",
+  "description": "Indica dove hai lavorato ogni giorno: Home, Smart Working (SW) o Client.",
+  "icon": "📍",
+  "difficulty": "base",
+  "estimatedMinutes": 2,
+  "explanation": "Per ogni giorno in cui inserisci ore devi specificare dove hai lavorato. La Work Location ha già un valore preselezionato di default ma è obbligatoria per i giorni con ore lavorate. Le opzioni disponibili sono tre: Home (ufficio), SW (Smart Working) e Client (sede cliente). Sabato e domenica sono normalmente disabilitati: si abilitano solo in caso di straordinario nel weekend.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca sul dropdown Work Location nella colonna 'Mar 1'",
+      "action": "click",
+      "target": "dropdown-wl-mar",
+      "errorMessage": "Non hai aperto il dropdown Work Location di martedì. Clicca sulla freccia nella cella 'Mar 1'."
+    },
+    {
+      "id": "step-2",
+      "description": "Seleziona 'SW' (Smart Working) dall'elenco",
+      "action": "click",
+      "target": "option-wl-sw",
+      "errorMessage": "Non hai selezionato 'SW'. Scegli la voce 'SW' dal dropdown aperto."
+    },
+    {
+      "id": "step-3",
+      "description": "Clicca sul dropdown Work Location nella colonna 'Mer 2'",
+      "action": "click",
+      "target": "dropdown-wl-mer",
+      "errorMessage": "Non hai aperto il dropdown Work Location di mercoledì."
+    },
+    {
+      "id": "step-4",
+      "description": "Seleziona 'Client' dall'elenco",
+      "action": "click",
+      "target": "option-wl-client",
+      "errorMessage": "Non hai selezionato 'Client'. Scegli la voce 'Client' dal dropdown aperto."
+    }
+  ],
+  "simulator": "missions/simulators/imposta-work-location.html",
+  "successMessage": "Perfetto! Sai come impostare la Work Location per ogni giorno lavorativo. Ricorda: è obbligatoria solo per i giorni in cui hai inserito ore."
+}

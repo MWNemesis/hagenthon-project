@@ -1,0 +1,34 @@
+{
+  "id": "inserisci-ore-timesheet",
+  "title": "Inserire le ore per codice e giorno",
+  "description": "Compila le celle della griglia con le ore lavorate su ciascun progetto, giorno per giorno.",
+  "icon": "⏱️",
+  "difficulty": "base",
+  "estimatedMinutes": 3,
+  "explanation": "Con i codici aggiunti alla griglia puoi inserire le ore per ogni giorno. Clicca sulla cella corrispondente al giorno e digita il numero di ore — sono ammessi valori decimali (es. 0.5, 7.5). Il totale giornaliero si aggiorna in tempo reale: se supera il Work Schedule di 8.0h le celle diventano rosse e viene calcolato lo straordinario nella riga 'Straordinario giornaliero'. Inserire più di 24h in un singolo giorno blocca l'invio del timesheet.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca sulla cella 'Mar 1' nella riga del codice progetto e inserisci '8'",
+      "action": "fill",
+      "target": "input-ore-mar",
+      "errorMessage": "Non hai inserito ore per martedì. Clicca sulla cella nella colonna 'Mar 1' e digita il numero di ore."
+    },
+    {
+      "id": "step-2",
+      "description": "Clicca sulla cella 'Mer 2' e inserisci '7.5'",
+      "action": "fill",
+      "target": "input-ore-mer",
+      "errorMessage": "Non hai inserito ore per mercoledì. Le ore possono essere anche decimali (es. 7.5)."
+    },
+    {
+      "id": "step-3",
+      "description": "Clicca sulla cella 'Gio 3' e inserisci '9' — osserva il rosso sullo straordinario",
+      "action": "fill",
+      "target": "input-ore-gio",
+      "errorMessage": "Non hai inserito ore per giovedì. Prova con 9 ore per vedere come appare lo straordinario."
+    }
+  ],
+  "simulator": "missions/simulators/inserisci-ore-timesheet.html",
+  "successMessage": "Ottimo! Sai come inserire le ore nella griglia. Le celle rosse indicano straordinario rispetto al Work Schedule di 8.0h — non bloccano il salvataggio, ma superare le 24h blocca l'invio."
+}

@@ -1,0 +1,34 @@
+{
+  "id": "aggiungi-codice-timesheet",
+  "title": "Aggiungere un codice progetto alla griglia",
+  "description": "Cerca e seleziona un codice progetto per iniziare a registrare le ore su di esso.",
+  "icon": "➕",
+  "difficulty": "base",
+  "estimatedMinutes": 3,
+  "explanation": "Per inserire le ore su un progetto devi prima aggiungerlo alla griglia selezionando il suo codice. Il picker ti mostra tutti i codici disponibili con tipo, cliente e stato. Puoi filtrare per codice o descrizione. I codici 'Non attivo' (badge rosso) appaiono in lista ma non sono selezionabili. Lo stesso codice può essere aggiunto una sola volta.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca su 'Seleziona codice' in una riga vuota della griglia",
+      "action": "click",
+      "target": "btn-seleziona-codice",
+      "errorMessage": "Non hai aperto il picker dei codici. Clicca su 'Seleziona codice' in una delle righe vuote."
+    },
+    {
+      "id": "step-2",
+      "description": "Digita 'CTUR' nel campo 'Filter...' per filtrare i risultati",
+      "action": "fill",
+      "target": "input-filter-codici",
+      "errorMessage": "Non hai usato il campo di ricerca. Digita parte del codice o della descrizione per filtrare l'elenco."
+    },
+    {
+      "id": "step-3",
+      "description": "Clicca sulla riga del codice 'CTUR9003' per aggiungerlo alla griglia",
+      "action": "click",
+      "target": "row-ctur9003",
+      "errorMessage": "Non hai selezionato il codice. Clicca sulla riga con stato 'Attivo' per aggiungerlo."
+    }
+  ],
+  "simulator": "missions/simulators/aggiungi-codice-timesheet.html",
+  "successMessage": "Ottimo! Hai aggiunto il codice progetto alla griglia. Ricorda: i codici 'Non attivo' non sono selezionabili e ogni codice può essere inserito una sola volta."
+}

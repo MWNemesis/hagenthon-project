@@ -1,0 +1,83 @@
+{
+  "id": "invia-timesheet-settimanale",
+  "title": "Compilare e inviare il timesheet settimanale",
+  "description": "Procedura completa: imposta la Work Location, aggiungi i codici, inserisci le ore e invia il timesheet.",
+  "icon": "📤",
+  "difficulty": "medio",
+  "estimatedMinutes": 10,
+  "explanation": "Inviare il timesheet è la procedura principale che svolgi ogni settimana. Devi aggiungere i codici progetto su cui hai lavorato, inserire le ore per ogni giorno e specificare dove hai lavorato (Work Location). Il portale mostra un riepilogo prima dell'invio definitivo. Una volta inviato la griglia diventa in sola lettura. Puoi inviare anche con ore inferiori alle 40h previste, ma il sistema avvisa. La scadenza è entro la fine del periodo selezionato.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca sul dropdown Work Location di 'Mar 1' e seleziona 'Home'",
+      "action": "click",
+      "target": "dropdown-wl-mar",
+      "errorMessage": "Non hai aperto il dropdown Work Location. Clicca sulla freccia nella colonna 'Mar 1'."
+    },
+    {
+      "id": "step-2",
+      "description": "Seleziona 'Home' dal dropdown",
+      "action": "click",
+      "target": "option-wl-home",
+      "errorMessage": "Non hai selezionato la Work Location. Clicca su 'Home' nel dropdown aperto."
+    },
+    {
+      "id": "step-3",
+      "description": "Clicca su 'Seleziona codice' nella prima riga vuota per aprire il picker",
+      "action": "click",
+      "target": "btn-seleziona-codice",
+      "errorMessage": "Non hai aperto il picker dei codici. Clicca su 'Seleziona codice' nella griglia."
+    },
+    {
+      "id": "step-4",
+      "description": "Clicca sulla riga 'CWC0K001 – BDOPP DEMO FY26 Core Banking Renewal' per aggiungerlo",
+      "action": "click",
+      "target": "row-cwc0k001",
+      "errorMessage": "Non hai selezionato il codice progetto. Clicca su una riga con stato 'Attivo'."
+    },
+    {
+      "id": "step-5",
+      "description": "Inserisci '8' nella cella 'Mar 1' del codice appena aggiunto",
+      "action": "fill",
+      "target": "input-ore-mar",
+      "errorMessage": "Non hai inserito ore per martedì. Clicca sulla cella e digita il numero di ore."
+    },
+    {
+      "id": "step-6",
+      "description": "Inserisci '8' nella cella 'Mer 2'",
+      "action": "fill",
+      "target": "input-ore-mer",
+      "errorMessage": "Non hai inserito ore per mercoledì."
+    },
+    {
+      "id": "step-7",
+      "description": "Inserisci '8' nella cella 'Gio 3'",
+      "action": "fill",
+      "target": "input-ore-gio",
+      "errorMessage": "Non hai inserito ore per giovedì."
+    },
+    {
+      "id": "step-8",
+      "description": "Inserisci '8' nella cella 'Ven 4'",
+      "action": "fill",
+      "target": "input-ore-ven",
+      "errorMessage": "Non hai inserito ore per venerdì."
+    },
+    {
+      "id": "step-9",
+      "description": "Clicca 'Invia timesheet' in alto a destra",
+      "action": "click",
+      "target": "btn-invia-timesheet",
+      "errorMessage": "Non hai avviato l'invio. Clicca il pulsante 'Invia timesheet' in alto a destra."
+    },
+    {
+      "id": "step-10",
+      "description": "Controlla il riepilogo nella modale e clicca 'Invia' per confermare",
+      "action": "click",
+      "target": "btn-conferma-invio",
+      "errorMessage": "Non hai confermato l'invio. Nella modale 'Riepilogo timesheet' clicca 'Invia'."
+    }
+  ],
+  "simulator": "missions/simulators/invia-timesheet-settimanale.html",
+  "successMessage": "Ottimo! Hai completato l'invio del timesheet. La griglia è ora in sola lettura. Ricorda: la scadenza per l'invio è entro la fine del periodo selezionato."
+}

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore — Aggiungere un codice progetto alla griglia</title>
+  <script src="../../js/tracker.js"></script>
+  <style>
+    /* ── Variabili estratte dagli screenshot ── */
+    :root {
+      --portal-primary:      #4F46E5;
+      --portal-primary-dark: #4338CA;
+      --portal-bg:           #F3F4F6;
+      --portal-white:        #FFFFFF;
+      --portal-border:       #E5E7EB;
+      --portal-border-light: #F3F4F6;
+      --portal-text:         #374151;
+      --portal-text-dark:    #111827;
+      --portal-text-light:   #6B7280;
+      --portal-text-ph:      #9CA3AF;
+      --portal-weekend:      #F3F4F6;
+      --portal-green:        #16A34A;
+      --portal-green-bg:     #DCFCE7;
+      --portal-red:          #DC2626;
+      --portal-red-bg:       #FEE2E2;
+      --portal-code-bg:      #EEF2FF;
+      --portal-code-text:    #4338CA;
+      --portal-teal:         #10B981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--portal-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Sim bar ─────────────────────────────────────────── */
+    .sim-bar {
+      background: #0f0f1a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+      z-index: 100;
+      border-bottom: 2px solid #A100FF;
+    }
+    .sim-bar-left { display: flex; align-items: center; gap: 10px; }
+    .sim-badge {
+      background: #A100FF;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .sim-mission-title { color: #cbd5e1; font-size: 13px; }
+    .sim-complete-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sim-complete-btn:hover { background: #15803d; }
+
+    /* ── Portal wrapper ──────────────────────────────────── */
+    .portal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--portal-white);
+    }
+
+    /* ── Tabs ────────────────────────────────────────────── */
+    .pt-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--portal-border);
+      padding: 0 24px;
+      background: var(--portal-white);
+      flex-shrink: 0;
+    }
+    .pt-tab {
+      padding: 14px 16px 12px;
+      font-size: 14px;
+      color: var(--portal-text-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      user-select: none;
+    }
+    .pt-tab:hover { color: var(--portal-text); }
+    .pt-tab.active {
+      color: var(--portal-primary);
+      border-bottom-color: var(--portal-primary);
+      font-weight: 500;
+    }
+
+    /* ── Date / action bar ───────────────────────────────── */
+    .pt-date-bar {
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      gap: 8px;
+      background: var(--portal-white);
+      border-bottom: 1px solid var(--portal-border);
+      flex-shrink: 0;
+    }
+    .btn-settimana {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      color: var(--portal-text);
+      cursor: pointer;
+    }
+    .btn-settimana .dot { color: var(--portal-primary); }
+    .btn-nav {
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      font-size: 15px;
+      cursor: pointer;
+      color: var(--portal-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-nav:hover { background: #F9FAFB; }
+    .period-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--portal-text-dark);
+      padding: 0 4px;
+    }
+    .spacer { flex: 1; }
+    .btn-azzera {
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-size: 14px;
+      color: var(--portal-text);
+      cursor: pointer;
+    }
+    .btn-azzera:hover { background: #F9FAFB; }
+    .btn-invia {
+      background: var(--portal-teal);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-invia:hover { background: #059669; }
+
+    /* ── Main area ───────────────────────────────────────── */
+    .pt-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background: var(--portal-bg);
+    }
+
+    /* ── Timesheet grid ──────────────────────────────────── */
+    .grid-wrap {
+      background: white;
+      border: 1px solid var(--portal-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .ts-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    /* Column widths */
+    .ts-table colgroup col.col-name { width: 260px; }
+    .ts-table colgroup col.col-day  { width: 80px; }
+    .ts-table colgroup col.col-tot  { width: 72px; }
+
+    .ts-table thead th {
+      background: white;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--portal-text);
+      border-bottom: 1px solid var(--portal-border);
+      border-right: 1px solid var(--portal-border-light);
+      line-height: 1.35;
+    }
+    .ts-table thead th:first-child {
+      text-align: left;
+      padding-left: 16px;
+    }
+    .ts-table thead th.th-weekend { color: var(--portal-text-ph); }
+    .ts-table thead th:last-child  { border-right: none; }
+
+    /* Body cells */
+    .ts-table tbody td {
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--portal-text);
+      border-bottom: 1px solid var(--portal-border-light);
+      border-right: 1px solid var(--portal-border-light);
+      vertical-align: middle;
+    }
+    .ts-table tbody td:first-child {
+      text-align: left;
+      padding-left: 16px;
+      padding-right: 10px;
+    }
+    .ts-table tbody td:last-child { border-right: none; }
+    .ts-table tbody td.td-weekend  { background: var(--portal-weekend); }
+
+    /* Work Location row */
+    .row-location td { border-bottom: 1px solid var(--portal-border); }
+    .lbl-wl {
+      color: var(--portal-primary);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .wl-select {
+      border: 1px solid var(--portal-border);
+      border-radius: 4px;
+      padding: 3px 4px;
+      font-size: 12px;
+      color: var(--portal-text);
+      background: white;
+      width: 100%;
+      cursor: pointer;
+      appearance: auto;
+    }
+    .wl-select:disabled {
+      background: var(--portal-weekend);
+      cursor: default;
+      border-color: transparent;
+      color: var(--portal-text-ph);
+    }
+
+    /* "Seleziona codice" cells */
+    .cell-seleziona {
+      color: var(--portal-text-ph) !important;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cell-seleziona:hover {
+      color: var(--portal-primary) !important;
+      background: #F5F3FF;
+    }
+
+    /* Filled code display */
+    .cell-code-filled {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .code-chip {
+      background: var(--portal-code-bg);
+      color: var(--portal-code-text);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .code-desc {
+      font-size: 13px;
+      color: var(--portal-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Footer rows */
+    .row-totali td {
+      background: #FAFAFA;
+      border-top: 2px solid var(--portal-border);
+      border-bottom: 1px solid var(--portal-border);
+      font-weight: 700;
+      color: var(--portal-text-dark);
+    }
+    .row-totali td:first-child {
+      text-align: right;
+      padding-right: 16px;
+      font-weight: 600;
+      color: var(--portal-text);
+    }
+    .row-schedule td {
+      background: #FAFAFA;
+      font-size: 14px;
+      color: var(--portal-text);
+    }
+    .row-schedule td:first-child {
+      text-align: right;
+      padding-right: 16px;
+      color: var(--portal-text-light);
+      font-weight: 400;
+    }
+    .row-extra td {
+      background: #FAFAFA;
+      font-size: 14px;
+      color: var(--portal-text);
+      border-bottom: none;
+    }
+    .row-extra td:first-child {
+      text-align: right;
+      padding-right: 16px;
+      color: var(--portal-text-light);
+      font-weight: 400;
+    }
+
+    /* ── Picker overlay ──────────────────────────────────── */
+    .picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .picker-panel {
+      background: white;
+      border-radius: 12px;
+      width: 940px;
+      max-width: 96vw;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+    .picker-filter-wrap {
+      padding: 14px 16px;
+      flex-shrink: 0;
+    }
+    .picker-filter {
+      width: 100%;
+      border: 2px solid var(--portal-primary);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: var(--portal-text);
+      outline: none;
+      font-family: inherit;
+    }
+    .picker-filter::placeholder { color: var(--portal-text-ph); }
+
+    .picker-table-wrap {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .picker-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .picker-table thead th {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--portal-text-light);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--portal-border);
+      white-space: nowrap;
+    }
+    .picker-table tbody td {
+      padding: 12px 12px;
+      font-size: 14px;
+      color: var(--portal-text);
+      border-bottom: 1px solid var(--portal-border-light);
+      vertical-align: middle;
+    }
+    .picker-row:last-child td { border-bottom: none; }
+
+    .picker-row.selectable { cursor: pointer; }
+    .picker-row.selectable:hover td { background: #F5F3FF; }
+    .picker-row.inactive { cursor: default; }
+    .picker-row.inactive td { color: var(--portal-text-light); }
+
+    .picker-code-badge {
+      background: var(--portal-code-bg);
+      color: var(--portal-code-text);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .picker-row.inactive .picker-code-badge {
+      opacity: 0.8;
+    }
+
+    .pill-attivo {
+      background: var(--portal-green-bg);
+      color: var(--portal-green);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .pill-nonattivo {
+      background: var(--portal-red-bg);
+      color: var(--portal-red);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1C1C1E;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border-left: 4px solid #22C55E;
+      z-index: 400;
+      animation: fadeInUp 0.25s ease;
+    }
+    @keyframes fadeInUp {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ── Hint card ───────────────────────────────────────── */
+    .hint-card {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1b4b;
+      color: white;
+      border: 1px solid #4f46e5;
+      border-radius: 12px;
+      padding: 14px 18px;
+      max-width: 440px;
+      width: calc(100% - 48px);
+      box-shadow: 0 8px 32px rgba(79,70,229,.35);
+      z-index: 350;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: fadeInUp .3s ease;
+    }
+    .hint-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .hint-text { flex: 1; }
+    .hint-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      margin-bottom: 3px;
+    }
+    .hint-msg { font-size: 14px; color: #e0e7ff; line-height: 1.4; }
+    .hint-close {
+      background: none;
+      border: none;
+      color: #a5b4fc;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .hint-close:hover { color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sim bar ── -->
+  <div class="sim-bar">
+    <div class="sim-bar-left">
+      <span class="sim-badge">SIMULATORE</span>
+      <span class="sim-mission-title">Aggiungere un codice progetto alla griglia</span>
+    </div>
+    <button class="sim-complete-btn" onclick="Tracker.complete()">&#10003; Completa missione</button>
+  </div>
+
+  <!-- ── Portal ── -->
+  <div class="portal">
+
+    <!-- Tabs -->
+    <div class="pt-tabs">
+      <span class="pt-tab active">Ore</span>
+      <span class="pt-tab">Codici Progetto</span>
+    </div>
+
+    <!-- Date / action bar -->
+    <div class="pt-date-bar">
+      <button class="btn-settimana"><span class="dot">&#9679;</span> Settimana</button>
+      <button class="btn-nav">&#8249;</button>
+      <span class="period-text">1 &ndash; 7 Set 2026</span>
+      <button class="btn-nav">&#8250;</button>
+      <div class="spacer"></div>
+      <button class="btn-azzera">Azzera</button>
+      <button class="btn-invia">Invia timesheet</button>
+    </div>
+
+    <!-- Main content -->
+    <div class="pt-main">
+      <div class="grid-wrap">
+        <table class="ts-table">
+          <colgroup>
+            <col class="col-name" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-day" />
+            <col class="col-tot" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Codici Progetto</th>
+              <th>Mar<br>1</th>
+              <th>Mer<br>2</th>
+              <th>Gio<br>3</th>
+              <th>Ven<br>4</th>
+              <th class="th-weekend">Sab<br>5</th>
+              <th class="th-weekend">Dom<br>6</th>
+              <th>Lun<br>7</th>
+              <th>Tot.</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- Work Location row -->
+            <tr class="row-location">
+              <td><span class="lbl-wl">Work Location</span></td>
+              <td>
+                <select class="wl-select">
+                  <option value=""></option>
+                  <option selected>Home</option>
+                  <option>Office</option>
+                </select>
+              </td>
+              <td>
+                <select class="wl-select">
+                  <option value=""></option>
+                  <option>Home</option>
+                  <option>Office</option>
+                </select>
+              </td>
+              <td>
+                <select class="wl-select">
+                  <option value=""></option>
+                  <option>Home</option>
+                  <option>Office</option>
+                </select>
+              </td>
+              <td>
+                <select class="wl-select">
+                  <option value=""></option>
+                  <option>Home</option>
+                  <option>Office</option>
+                </select>
+              </td>
+              <td class="td-weekend">
+                <select class="wl-select" disabled><option value=""></option></select>
+              </td>
+              <td class="td-weekend">
+                <select class="wl-select" disabled><option value=""></option></select>
+              </td>
+              <td>
+                <select class="wl-select">
+                  <option value=""></option>
+                  <option>Home</option>
+                  <option>Office</option>
+                </select>
+              </td>
+              <td></td>
+            </tr>
+
+            <!-- Code row 0 -->
+            <tr id="code-row-0">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(0)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Code row 1 -->
+            <tr id="code-row-1">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(1)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Code row 2 -->
+            <tr id="code-row-2">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(2)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Code row 3 -->
+            <tr id="code-row-3">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(3)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Code row 4 -->
+            <tr id="code-row-4">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(4)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Code row 5 -->
+            <tr id="code-row-5">
+              <td class="cell-seleziona"
+                  data-track-id="btn-seleziona-codice"
+                  onclick="openPicker(5)">Seleziona codice</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td><td></td>
+            </tr>
+
+            <!-- Ore totali -->
+            <tr class="row-totali">
+              <td>Ore totali</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td>
+              <td>0</td>
+            </tr>
+
+            <!-- Work Schedule -->
+            <tr class="row-schedule">
+              <td>Work Schedule</td>
+              <td>8.0</td>
+              <td>8.0</td>
+              <td>8.0</td>
+              <td>8.0</td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td>8.0</td>
+              <td>40.0</td>
+            </tr>
+
+            <!-- Straordinario giornaliero -->
+            <tr class="row-extra">
+              <td>Straordinario giornaliero</td>
+              <td></td><td></td><td></td><td></td>
+              <td class="td-weekend"></td>
+              <td class="td-weekend"></td>
+              <td></td>
+              <td>0</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- .portal -->
+
+  <!-- ── Picker overlay ── -->
+  <div class="picker-overlay" id="pickerOverlay" style="display:none"
+       onclick="onOverlayClick(event)">
+    <div class="picker-panel" onclick="event.stopPropagation()">
+
+      <!-- Filter input -->
+      <div class="picker-filter-wrap">
+        <input
+          type="text"
+          class="picker-filter"
+          id="pickerFilter"
+          placeholder="Filter..."
+          data-track-id="input-filter-codici"
+          oninput="filterCodes(this.value)"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Codes table -->
+      <div class="picker-table-wrap">
+        <table class="picker-table">
+          <thead>
+            <tr>
+              <th>CODICE</th>
+              <th>TIPO</th>
+              <th>SOTTOTIPO</th>
+              <th>CLIENTE</th>
+              <th>PAESE</th>
+              <th>DESCRIZIONE</th>
+              <th>STATO</th>
+            </tr>
+          </thead>
+          <tbody id="pickerBody">
+
+            <!-- CWC0K001 — Attivo -->
+            <tr class="picker-row selectable"
+                data-search="cwc0k001 business development opportunity pursuit banca esempio s.p.a. italy bdopp_demo fy26 core banking renewal attivo"
+                onclick="selectCode('CWC0K001')">
+              <td><span class="picker-code-badge">CWC0K001</span></td>
+              <td>Business Development</td>
+              <td>Opportunity Pursuit</td>
+              <td>Banca Esempio S.p.A.</td>
+              <td>Italy</td>
+              <td>BDOPP_DEMO FY26 - Core Banking Renewal</td>
+              <td><span class="pill-attivo">&#9679; Attivo</span></td>
+            </tr>
+
+            <!-- CWE5R001 — Non attivo (not clickable) -->
+            <tr class="picker-row inactive"
+                data-search="cwe5r001 business development opportunity pursuit assicura italia s.p.a. italy bdopp_demo fy26 digital claims platform non attivo">
+              <td><span class="picker-code-badge">CWE5R001</span></td>
+              <td>Business Development</td>
+              <td>Opportunity Pursuit</td>
+              <td>Assicura Italia S.p.A.</td>
+              <td>Italy</td>
+              <td>BDOPP_DEMO FY26 - Digital Claims Platform</td>
+              <td><span class="pill-nonattivo">&#9679; Non attivo</span></td>
+            </tr>
+
+            <!-- CTUR9003 — Attivo — TARGET -->
+            <tr class="picker-row selectable"
+                data-track-id="row-ctur9003"
+                data-search="ctur9003 chargeable motorex europe s.p.a. italy ctur9001 italy operations attivo"
+                onclick="selectCode('CTUR9003')">
+              <td><span class="picker-code-badge">CTUR9003</span></td>
+              <td>Chargeable</td>
+              <td>-</td>
+              <td>Motorex Europe S.p.A.</td>
+              <td>Italy</td>
+              <td>CTUR9001 - Italy Operations</td>
+              <td><span class="pill-attivo">&#9679; Attivo</span></td>
+            </tr>
+
+            <!-- 994W01 — Attivo -->
+            <tr class="picker-row selectable"
+                data-search="994w01 training absence assenza ferie attivo"
+                onclick="selectCode('994W01')">
+              <td><span class="picker-code-badge">994W01</span></td>
+              <td>Training/Absence</td>
+              <td>Assenza</td>
+              <td>-</td>
+              <td>-</td>
+              <td>Ferie</td>
+              <td><span class="pill-attivo">&#9679; Attivo</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- .picker-overlay -->
+
+  <script>
+    // ── State ─────────────────────────────────────────────
+    var activeRowIdx = null;
+
+    var CODE_DATA = {
+      'CWC0K001': { label: 'BDOPP_DEMO FY26 - Core Banking Renewal' },
+      'CTUR9003': { label: 'CTUR9001 - Italy Operations' },
+      '994W01':   { label: 'Ferie' }
+    };
+
+    // ── Picker ────────────────────────────────────────────
+    function openPicker(rowIdx) {
+      activeRowIdx = rowIdx;
+      var overlay = document.getElementById('pickerOverlay');
+      overlay.style.display = 'flex';
+      var input = document.getElementById('pickerFilter');
+      input.value = '';
+      filterCodes('');
+      setTimeout(function() { input.focus(); }, 50);
+    }
+
+    function closePicker() {
+      document.getElementById('pickerOverlay').style.display = 'none';
+    }
+
+    function onOverlayClick(e) {
+      if (e.target === document.getElementById('pickerOverlay')) {
+        closePicker();
+      }
+    }
+
+    function filterCodes(text) {
+      var q = text.toLowerCase().trim();
+      var rows = document.querySelectorAll('#pickerBody tr.picker-row');
+      rows.forEach(function(row) {
+        var search = (row.dataset.search || '').toLowerCase();
+        row.style.display = (!q || search.indexOf(q) !== -1) ? '' : 'none';
+      });
+    }
+
+    function selectCode(code) {
+      var data = CODE_DATA[code];
+      if (!data) return; // inactive — no-op
+
+      closePicker();
+
+      var row = document.getElementById('code-row-' + activeRowIdx);
+      if (!row) return;
+
+      var firstCell = row.cells[0];
+      // Remove tracking attribute and click handler (already fired via tracker)
+      firstCell.removeAttribute('data-track-id');
+      firstCell.onclick = null;
+      firstCell.className = '';
+      firstCell.innerHTML =
+        '<div class="cell-code-filled">' +
+          '<span class="code-chip">' + code + '</span>' +
+          '<span class="code-desc">' + data.label + '</span>' +
+        '</div>';
+
+      showToast('Codice ' + code + ' aggiunto alla griglia.');
+    }
+
+    // ── Toast ─────────────────────────────────────────────
+    var toastTimer = null;
+
+    function showToast(msg) {
+      if (toastTimer) { clearTimeout(toastTimer); removeToast(); }
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.id = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      toastTimer = setTimeout(removeToast, 3000);
+    }
+
+    function removeToast() {
+      var t = document.getElementById('toast');
+      if (t) t.remove();
+      toastTimer = null;
+    }
+
+    // ── Hint system ───────────────────────────────────────
+    var HINT_DELAY = 20000;
+    var lastInteraction = Date.now();
+    var hintActive = false;
+
+    ['click', 'keydown', 'touchstart'].forEach(function(ev) {
+      document.addEventListener(ev, function() {
+        lastInteraction = Date.now();
+        if (hintActive) dismissHint();
+      }, { passive: true });
+    });
+
+    setInterval(function() {
+      if (hintActive) return;
+      if (Date.now() - lastInteraction < HINT_DELAY) return;
+      showNextHint();
+    }, 2000);
+
+    function showNextHint() {
+      var mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (!mission.steps) return;
+      var log = Tracker.getLog();
+      var nextStep = mission.steps.find(function(step) {
+        return !log.some(function(a) {
+          return a.action === step.action && a.targetId === step.target;
+        });
+      });
+      if (!nextStep) return;
+      hintActive = true;
+      var card = document.createElement('div');
+      card.className = 'hint-card';
+      card.id = 'hint-card';
+      card.innerHTML =
+        '<span class="hint-icon">&#128161;</span>' +
+        '<div class="hint-text">' +
+          '<div class="hint-label">Suggerimento</div>' +
+          '<div class="hint-msg">' + nextStep.description + '</div>' +
+        '</div>' +
+        '<button class="hint-close" onclick="dismissHint()">&#10005;</button>';
+      document.body.appendChild(card);
+    }
+
+    function dismissHint() {
+      var card = document.getElementById('hint-card');
+      if (card) card.remove();
+      hintActive = false;
+      lastInteraction = Date.now();
+    }
+  </script>
+
+</body>
+</html>

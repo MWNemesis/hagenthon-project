@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore — Inserire le ore per codice e giorno</title>
+  <script src="../../js/tracker.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --portal-primary:     #4F46E5;
+      --portal-bg:          #F9FAFB;
+      --portal-white:       #FFFFFF;
+      --portal-text:        #374151;
+      --portal-text-strong: #111827;
+      --portal-text-muted:  #6B7280;
+      --portal-border:      #E5E7EB;
+      --portal-border-soft: #F3F4F6;
+      --portal-weekend:     #F3F4F6;
+      --portal-summary:     #F9FAFB;
+      --portal-green:       #10B981;
+      --portal-red:         #DC2626;
+      --portal-red-light:   #FEE2E2;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--portal-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Simulator bar ── */
+    .sim-bar {
+      background: #0f0f1a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+      z-index: 100;
+      border-bottom: 2px solid #A100FF;
+    }
+    .sim-bar-left { display: flex; align-items: center; gap: 10px; }
+    .sim-badge {
+      background: #A100FF;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .sim-mission-title { color: #cbd5e1; font-size: 13px; }
+    .sim-complete-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sim-complete-btn:hover { background: #15803d; }
+
+    /* ── Portal wrapper ── */
+    .portal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Portal header ── */
+    .pt-header {
+      background: var(--portal-white);
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 52px;
+      flex-shrink: 0;
+    }
+    .pt-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-right: 32px;
+      white-space: nowrap;
+    }
+    .pt-logo em { color: var(--portal-green); font-style: normal; }
+    .pt-nav { display: flex; flex: 1; }
+    .pt-tab {
+      padding: 0 16px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: var(--portal-text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pt-tab:hover { color: var(--portal-text); background: var(--portal-bg); }
+    .pt-tab.active { color: var(--portal-primary); border-bottom-color: var(--portal-primary); font-weight: 500; }
+    .pt-header-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .pt-icon-btn {
+      background: var(--portal-white);
+      border: 1px solid var(--portal-border);
+      border-radius: 6px;
+      width: 32px; height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--portal-text-muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pt-avatar {
+      background: var(--portal-primary);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+
+    /* ── Period bar ── */
+    .pt-period-bar {
+      background: var(--portal-white);
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .pt-week-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--portal-border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      color: var(--portal-text);
+      cursor: default;
+      user-select: none;
+    }
+    .pt-week-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--portal-primary);
+    }
+    .pt-nav-btn {
+      background: var(--portal-white);
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--portal-text);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pt-nav-btn:hover { background: var(--portal-bg); }
+    .pt-period-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--portal-text);
+      padding: 0 4px;
+    }
+    .pt-spacer { flex: 1; }
+    .btn-azzera {
+      background: var(--portal-white);
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--portal-text);
+      cursor: pointer;
+    }
+    .btn-azzera:hover { background: var(--portal-bg); }
+    .btn-invia {
+      background: var(--portal-green);
+      border: none;
+      border-radius: 6px;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+    }
+    .btn-invia:hover { background: #059669; }
+
+    /* ── Main content ── */
+    .pt-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background: var(--portal-bg);
+    }
+
+    /* ── Warning banner ── */
+    .warning-banner {
+      display: none;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--portal-red);
+      margin-bottom: 12px;
+    }
+    .warning-banner.visible { display: block; }
+
+    /* ── Timesheet grid ── */
+    .ts-grid-wrapper {
+      background: var(--portal-white);
+      border: 1px solid var(--portal-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .ts-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    /* Column widths */
+    .ts-grid col.col-codici { width: 34%; }
+    .ts-grid col.col-day    { width: 8%;  }
+    .ts-grid col.col-tot    { width: 6%;  }
+
+    /* Header */
+    .ts-grid thead tr th {
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--portal-text);
+      border-bottom: 2px solid var(--portal-border);
+      border-right: 1px solid var(--portal-border-soft);
+      background: var(--portal-white);
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .ts-grid thead tr th:first-child {
+      text-align: left;
+      padding-left: 16px;
+    }
+    .ts-grid thead tr th:last-child { border-right: none; }
+    .ts-grid thead tr th.col-wknd {
+      color: #9CA3AF;
+      background: var(--portal-weekend);
+    }
+
+    /* Body base */
+    .ts-grid tbody td {
+      border-bottom: 1px solid var(--portal-border-soft);
+      border-right: 1px solid var(--portal-border-soft);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .ts-grid tbody td:first-child {
+      text-align: right;
+      border-right: 1px solid var(--portal-border);
+    }
+    .ts-grid tbody td:last-child { border-right: none; }
+    .ts-grid tbody td.col-wknd {
+      background: var(--portal-weekend);
+    }
+
+    /* ── Work Location row ── */
+    .row-wl td {
+      height: 44px;
+      border-bottom: 1px solid var(--portal-border);
+    }
+    .row-wl td:first-child {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--portal-primary);
+      padding-right: 12px;
+      padding-left: 16px;
+    }
+    .wl-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      background: var(--portal-white);
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--portal-text);
+      min-width: 68px;
+      cursor: default;
+      pointer-events: none;
+      user-select: none;
+    }
+    .wl-pill.disabled {
+      background: var(--portal-weekend);
+      color: #9CA3AF;
+      border-color: var(--portal-border);
+    }
+    .wl-chevron { font-size: 10px; opacity: 0.6; }
+
+    /* ── Code row ── */
+    .row-code td { height: 48px; }
+    .row-code td:first-child {
+      padding: 0;
+      text-align: left;
+    }
+    .code-name-cell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px 6px 16px;
+      height: 48px;
+    }
+    .code-name-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--portal-text);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-remove {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      width: 22px; height: 22px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #C4C4C4;
+      cursor: not-allowed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* Ore inputs */
+    .ore-input {
+      display: block;
+      width: 100%;
+      height: 48px;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--portal-text);
+      padding: 4px 2px;
+      outline: none;
+      font-family: inherit;
+    }
+    .ore-input:focus {
+      background: #EEF2FF;
+      border-radius: 2px;
+    }
+    .ore-input[disabled] {
+      background: var(--portal-weekend);
+      color: #9CA3AF;
+      cursor: not-allowed;
+    }
+    /* Slim spinners */
+    .ore-input::-webkit-inner-spin-button,
+    .ore-input::-webkit-outer-spin-button { opacity: 0.25; }
+
+    /* ── Summary rows ── */
+    .row-summary td {
+      padding: 9px 6px;
+      font-size: 13px;
+      background: var(--portal-summary);
+      border-bottom: 1px solid var(--portal-border-soft);
+    }
+    .row-summary td:first-child {
+      font-size: 13px;
+      padding-right: 12px;
+      padding-left: 16px;
+    }
+    .row-summary td.col-wknd {
+      background: #EBEBEB;
+    }
+    .row-summary:last-child td { border-bottom: none; }
+
+    /* Ore totali */
+    .row-ore-tot td:first-child { font-weight: 700; color: var(--portal-text-strong); }
+    .tot-day-cell { font-weight: 600; color: var(--portal-text); }
+    .tot-day-cell.over { background: var(--portal-red-light) !important; color: var(--portal-red) !important; }
+    .tot-all-cell { font-weight: 700; color: var(--portal-text-strong); }
+
+    /* Work Schedule */
+    .row-ws td:first-child { color: var(--portal-text-muted); }
+    .ws-val { font-weight: 600; color: var(--portal-text); }
+
+    /* Straordinario */
+    .row-straord td:first-child { color: var(--portal-text-muted); }
+    .straord-cell { font-weight: 500; color: var(--portal-text); }
+    .straord-cell.over { color: var(--portal-red); font-weight: 700; }
+
+    /* ── Hint card ── */
+    .hint-card {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1b4b;
+      color: white;
+      border: 1px solid #4f46e5;
+      border-radius: 12px;
+      padding: 14px 18px;
+      max-width: 440px;
+      width: calc(100% - 48px);
+      box-shadow: 0 8px 32px rgba(79,70,229,.35);
+      z-index: 350;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: hintFadeUp .3s ease;
+    }
+    .hint-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .hint-text { flex: 1; }
+    .hint-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #a5b4fc; margin-bottom: 3px; }
+    .hint-msg   { font-size: 14px; color: #e0e7ff; line-height: 1.4; }
+    .hint-close {
+      background: none; border: none; color: #a5b4fc;
+      font-size: 16px; cursor: pointer; padding: 0 2px; flex-shrink: 0;
+    }
+    .hint-close:hover { color: white; }
+    @keyframes hintFadeUp {
+      from { transform: translateX(-50%) translateY(10px); opacity: 0; }
+      to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Simulator bar ── -->
+  <div class="sim-bar">
+    <div class="sim-bar-left">
+      <span class="sim-badge">SIMULATORE</span>
+      <span class="sim-mission-title" id="simTitle">Inserire le ore per codice e giorno</span>
+    </div>
+    <button class="sim-complete-btn" onclick="Tracker.complete()">&#10003; Completa missione</button>
+  </div>
+
+  <!-- ── Portal ── -->
+  <div class="portal">
+
+    <!-- Header -->
+    <header class="pt-header">
+      <div class="pt-logo"><em>Time</em>Track</div>
+      <nav class="pt-nav">
+        <span class="pt-tab active">Ore</span>
+        <span class="pt-tab">Codici Progetto</span>
+        <span class="pt-tab">Spese</span>
+        <span class="pt-tab">Rettifiche</span>
+        <span class="pt-tab">Riepilogo</span>
+        <span class="pt-tab">Preferenze</span>
+      </nav>
+      <div class="pt-header-right">
+        <button class="pt-icon-btn">&#128276;</button>
+        <button class="pt-icon-btn">?</button>
+        <button class="pt-icon-btn">&#9881;</button>
+        <div class="pt-avatar">MC</div>
+      </div>
+    </header>
+
+    <!-- Period bar -->
+    <div class="pt-period-bar">
+      <div class="pt-week-pill">
+        <span class="pt-week-dot"></span>
+        Settimana
+      </div>
+      <button class="pt-nav-btn">&#8249;</button>
+      <span class="pt-period-label">1 &#8211; 7 Set 2026</span>
+      <button class="pt-nav-btn">&#8250;</button>
+      <div class="pt-spacer"></div>
+      <button class="btn-azzera">Azzera</button>
+      <button class="btn-invia">Invia timesheet</button>
+    </div>
+
+    <!-- Main -->
+    <main class="pt-main">
+
+      <!-- Warning banner (24h limit) -->
+      <div class="warning-banner" id="warningBanner">
+        Attenzione: hai superato il limite di 24 ore in almeno un giorno. L'invio del timesheet non sara possibile finche il totale giornaliero non viene corretto.
+      </div>
+
+      <!-- Timesheet grid -->
+      <div class="ts-grid-wrapper">
+        <table class="ts-grid">
+          <colgroup>
+            <col class="col-codici" />
+            <col class="col-day" /><!-- Mar -->
+            <col class="col-day" /><!-- Mer -->
+            <col class="col-day" /><!-- Gio -->
+            <col class="col-day" /><!-- Ven -->
+            <col class="col-day" /><!-- Sab -->
+            <col class="col-day" /><!-- Dom -->
+            <col class="col-day" /><!-- Lun -->
+            <col class="col-tot"  /><!-- Tot -->
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Codici Progetto</th>
+              <th>Mar<br/>1</th>
+              <th>Mer<br/>2</th>
+              <th>Gio<br/>3</th>
+              <th>Ven<br/>4</th>
+              <th class="col-wknd">Sab<br/>5</th>
+              <th class="col-wknd">Dom<br/>6</th>
+              <th>Lun<br/>7</th>
+              <th>Tot.</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- Work Location row -->
+            <tr class="row-wl">
+              <td>Work Location</td>
+              <td><div class="wl-pill">Home <span class="wl-chevron">&#9660;</span></div></td>
+              <td><div class="wl-pill">Home <span class="wl-chevron">&#9660;</span></div></td>
+              <td><div class="wl-pill">Home <span class="wl-chevron">&#9660;</span></div></td>
+              <td><div class="wl-pill">Home <span class="wl-chevron">&#9660;</span></div></td>
+              <td class="col-wknd"><div class="wl-pill disabled"><span class="wl-chevron">&#9660;</span></div></td>
+              <td class="col-wknd"><div class="wl-pill disabled"><span class="wl-chevron">&#9660;</span></div></td>
+              <td><div class="wl-pill">Home <span class="wl-chevron">&#9660;</span></div></td>
+              <td></td>
+            </tr>
+
+            <!-- CTUR9003 code row -->
+            <tr class="row-code">
+              <td>
+                <div class="code-name-cell">
+                  <span class="code-name-text">CTUR9001 &#8211; Italy Operations (CTUR9003)</span>
+                  <button class="btn-remove" disabled title="Codice pre-caricato">&#8211;</button>
+                </div>
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="ore-input"
+                  id="ore-mar"
+                  data-track-id="input-ore-mar"
+                  min="0" max="24" step="0.5"
+                  placeholder=""
+                  oninput="recalculate()"
+                  onchange="recalculate()"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="ore-input"
+                  id="ore-mer"
+                  data-track-id="input-ore-mer"
+                  min="0" max="24" step="0.5"
+                  placeholder=""
+                  oninput="recalculate()"
+                  onchange="recalculate()"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="ore-input"
+                  id="ore-gio"
+                  data-track-id="input-ore-gio"
+                  min="0" max="24" step="0.5"
+                  placeholder=""
+                  oninput="recalculate()"
+                  onchange="recalculate()"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="ore-input"
+                  id="ore-ven"
+                  min="0" max="24" step="0.5"
+                  placeholder=""
+                  oninput="recalculate()"
+                  onchange="recalculate()"
+                />
+              </td>
+              <td class="col-wknd">
+                <input type="number" class="ore-input" disabled placeholder="" />
+              </td>
+              <td class="col-wknd">
+                <input type="number" class="ore-input" disabled placeholder="" />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="ore-input"
+                  id="ore-lun"
+                  min="0" max="24" step="0.5"
+                  placeholder=""
+                  oninput="recalculate()"
+                  onchange="recalculate()"
+                />
+              </td>
+              <td id="row-tot" style="font-size:13px; font-weight:700; color:#374151;"></td>
+            </tr>
+
+            <!-- Ore totali row -->
+            <tr class="row-summary row-ore-tot">
+              <td>Ore totali</td>
+              <td class="tot-day-cell" id="tot-mar"></td>
+              <td class="tot-day-cell" id="tot-mer"></td>
+              <td class="tot-day-cell" id="tot-gio"></td>
+              <td class="tot-day-cell" id="tot-ven"></td>
+              <td class="col-wknd tot-day-cell" id="tot-sab"></td>
+              <td class="col-wknd tot-day-cell" id="tot-dom"></td>
+              <td class="tot-day-cell" id="tot-lun"></td>
+              <td class="tot-all-cell" id="tot-all">0</td>
+            </tr>
+
+            <!-- Work Schedule row -->
+            <tr class="row-summary row-ws">
+              <td>Work Schedule</td>
+              <td class="ws-val">8.0</td>
+              <td class="ws-val">8.0</td>
+              <td class="ws-val">8.0</td>
+              <td class="ws-val">8.0</td>
+              <td class="col-wknd"></td>
+              <td class="col-wknd"></td>
+              <td class="ws-val">8.0</td>
+              <td class="ws-val">40.0</td>
+            </tr>
+
+            <!-- Straordinario giornaliero row -->
+            <tr class="row-summary row-straord">
+              <td>Straordinario giornaliero</td>
+              <td class="straord-cell" id="straord-mar"></td>
+              <td class="straord-cell" id="straord-mer"></td>
+              <td class="straord-cell" id="straord-gio"></td>
+              <td class="straord-cell" id="straord-ven"></td>
+              <td class="col-wknd"></td>
+              <td class="col-wknd"></td>
+              <td class="straord-cell" id="straord-lun"></td>
+              <td class="straord-cell" id="straord-tot">0</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ── Constants ──────────────────────────────────────────────────────
+    const WORK_DAYS = ['mar', 'mer', 'gio', 'ven', 'lun'];
+    const WORK_SCHEDULE = { mar: 8, mer: 8, gio: 8, ven: 8, lun: 8 };
+
+    // ── Init ──────────────────────────────────────────────────────────
+    (function init() {
+      const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (mission.title) {
+        document.getElementById('simTitle').textContent = mission.title;
+      }
+    })();
+
+    // ── Recalculation ─────────────────────────────────────────────────
+    function fmtVal(v) {
+      if (v === 0) return '0';
+      return (v === Math.floor(v)) ? String(v) : v.toFixed(1);
+    }
+
+    function recalculate() {
+      var rowTotal    = 0;
+      var totalOvt    = 0;
+      var anyOver24   = false;
+
+      WORK_DAYS.forEach(function(day) {
+        var input = document.getElementById('ore-' + day);
+        var val   = input ? (parseFloat(input.value) || 0) : 0;
+        if (val < 0) val = 0;
+        rowTotal += val;
+
+        // Ore totali cell per day
+        var totCell = document.getElementById('tot-' + day);
+        if (totCell) {
+          totCell.textContent = val > 0 ? fmtVal(val) : '';
+          if (val > WORK_SCHEDULE[day]) {
+            totCell.classList.add('over');
+          } else {
+            totCell.classList.remove('over');
+          }
+        }
+
+        // Straordinario per day
+        var overtime   = Math.max(0, val - WORK_SCHEDULE[day]);
+        totalOvt      += overtime;
+        var straordCell = document.getElementById('straord-' + day);
+        if (straordCell) {
+          if (overtime > 0) {
+            straordCell.textContent = fmtVal(overtime);
+            straordCell.classList.add('over');
+          } else {
+            straordCell.textContent = '';
+            straordCell.classList.remove('over');
+          }
+        }
+
+        if (val > 24) anyOver24 = true;
+      });
+
+      // Row total (Tot. column of code row)
+      var rowTotCell = document.getElementById('row-tot');
+      if (rowTotCell) {
+        rowTotCell.textContent = rowTotal > 0 ? fmtVal(rowTotal) : '';
+      }
+
+      // Grand total (Tot. column of Ore totali row)
+      var totAllCell = document.getElementById('tot-all');
+      if (totAllCell) {
+        totAllCell.textContent = fmtVal(rowTotal);
+      }
+
+      // Total overtime (Tot. column of Straordinario row)
+      var straordTotCell = document.getElementById('straord-tot');
+      if (straordTotCell) {
+        straordTotCell.textContent = fmtVal(totalOvt);
+        if (totalOvt > 0) {
+          straordTotCell.classList.add('over');
+        } else {
+          straordTotCell.classList.remove('over');
+        }
+      }
+
+      // Warning banner for > 24h
+      var banner = document.getElementById('warningBanner');
+      if (banner) {
+        if (anyOver24) banner.classList.add('visible');
+        else           banner.classList.remove('visible');
+      }
+    }
+
+    // ── Hint system ───────────────────────────────────────────────────
+    var HINT_DELAY  = 20000;
+    var lastAction  = Date.now();
+    var hintShowing = false;
+
+    ['click', 'keydown', 'touchstart'].forEach(function(ev) {
+      document.addEventListener(ev, function() {
+        lastAction = Date.now();
+        if (hintShowing) dismissHint();
+      }, { passive: true });
+    });
+
+    setInterval(function() {
+      if (hintShowing) return;
+      if (Date.now() - lastAction < HINT_DELAY) return;
+      showNextHint();
+    }, 2000);
+
+    function showNextHint() {
+      var mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (!mission.steps) return;
+
+      var log = Tracker.getLog();
+      var completedTargets = log.map(function(a) { return a.targetId; });
+
+      var nextStep = null;
+      for (var i = 0; i < mission.steps.length; i++) {
+        if (completedTargets.indexOf(mission.steps[i].target) === -1) {
+          nextStep = mission.steps[i];
+          break;
+        }
+      }
+      if (!nextStep) return;
+
+      hintShowing = true;
+      var card = document.createElement('div');
+      card.className = 'hint-card';
+      card.id        = 'hint-card';
+      card.innerHTML =
+        '<span class="hint-icon">&#128161;</span>' +
+        '<div class="hint-text">' +
+          '<div class="hint-label">Suggerimento</div>' +
+          '<div class="hint-msg">' + nextStep.description + '</div>' +
+        '</div>' +
+        '<button class="hint-close" onclick="dismissHint()">&#10005;</button>';
+      document.body.appendChild(card);
+    }
+
+    function dismissHint() {
+      var card = document.getElementById('hint-card');
+      if (card) card.remove();
+      hintShowing = false;
+      lastAction  = Date.now();
+    }
+  </script>
+
+</body>
+</html>

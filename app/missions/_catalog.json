@@ -1,0 +1,204 @@
+{
+  "generatedAt": "2026-09-22T00:00:00.000Z",
+  "portalSections": ["Timesheet"],
+  "missions": [
+    {
+      "status": "ready",
+      "suggestedId": "seleziona-periodo-timesheet",
+      "title": "Selezionare il periodo del timesheet",
+      "description": "Scegli come visualizzare e inserire le ore: per settimana, due settimane o per l'intero mese.",
+      "icon": "📅",
+      "difficulty": "base",
+      "estimatedMinutes": 2,
+      "section": "Timesheet",
+      "priority": 1,
+      "explanation": "Prima di inserire le ore devi scegliere il periodo di riferimento. Puoi visualizzare il timesheet per settimana (blocchi 1–7, 8–14, 15–21, 22–28, 29–fine mese), per due settimane (1–15 e 16–fine mese) o per l'intero mese. La scelta si resetta ad ogni accesso: il portale riparte sempre dalla vista Settimana. Se un periodo è già stato inviato, puoi comunque cambiare periodo per compilarne un altro.",
+      "draftSteps": [
+        "Clicca sul pulsante 'Settimana' in alto a sinistra — si apre la modale 'Seleziona il periodo'",
+        "Scegli il periodo desiderato tra Settimana, Due settimane e Mensile",
+        "Clicca 'Conferma' per applicare la selezione"
+      ],
+      "screenshotsNeeded": [
+        "Modale 'Seleziona il periodo' con le tre opzioni visibili",
+        "Griglia principale con il selettore periodo in alto a sinistra"
+      ],
+      "clarifications": {
+        "defaultOnLogin": "La vista riparte sempre da 'Settimana' ad ogni accesso",
+        "multiPeriodSupport": "Si può cambiare periodo per compilare periodi diversi; i periodi già inviati restano in sola lettura",
+        "gridBehavior": "La griglia (righe, ore, Work Location) funziona allo stesso modo per tutti e tre i tipi di periodo"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "imposta-work-location",
+      "title": "Impostare la Work Location giornaliera",
+      "description": "Indica dove hai lavorato ogni giorno: Home, Smart Working o Client.",
+      "icon": "📍",
+      "difficulty": "base",
+      "estimatedMinutes": 2,
+      "section": "Timesheet",
+      "priority": 2,
+      "explanation": "Per ogni giorno in cui inserisci ore devi specificare dove hai lavorato. La Work Location ha già un valore preselezionato di default ma è obbligatoria per i giorni con ore lavorate. Le opzioni disponibili sono tre: Home (ufficio di casa), SW (Smart Working) e Client (sede cliente). Sabato e domenica sono normalmente disabilitati ma si abilitano automaticamente in caso di straordinario.",
+      "draftSteps": [
+        "Clicca sul dropdown Work Location nella colonna del giorno desiderato (riga 'Work Location' in cima alla griglia)",
+        "Seleziona una delle tre opzioni: Home, SW (Smart Working) o Client",
+        "Il dropdown si chiude e mostra il valore selezionato — ripeti per ogni giorno con ore lavorate"
+      ],
+      "screenshotsNeeded": [
+        "Dropdown Work Location aperto con le tre opzioni (Home, SW, Client)",
+        "Griglia con Work Location già impostata su 'Home' per il lunedì"
+      ],
+      "clarifications": {
+        "mandatory": "Obbligatoria solo per i giorni in cui sono presenti ore lavorate",
+        "defaultValue": "Preselezionata con un valore di default al caricamento",
+        "options": ["Home", "SW (Smart Working)", "Client"],
+        "weekendBehavior": "Sabato e domenica sono disabilitati; si abilitano automaticamente se il contratto prevede straordinari nel weekend"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "aggiungi-codice-timesheet",
+      "title": "Aggiungere un codice progetto alla griglia",
+      "description": "Cerca e seleziona un codice progetto per iniziare a registrare le ore su di esso.",
+      "icon": "➕",
+      "difficulty": "base",
+      "estimatedMinutes": 3,
+      "section": "Timesheet",
+      "priority": 3,
+      "explanation": "Per inserire le ore su un progetto devi prima aggiungerlo alla griglia selezionando il suo codice. Il picker ti mostra tutti i codici disponibili con tipo, cliente e stato. Puoi filtrare per codice o descrizione. I codici 'Non attivo' appaiono in lista ma non sono selezionabili. Lo stesso codice può essere aggiunto una sola volta.",
+      "draftSteps": [
+        "Clicca su 'Seleziona codice' in una riga vuota della griglia",
+        "Nel picker che si apre, digita nel campo 'Filter...' per cercare per codice o descrizione (facoltativo)",
+        "Identifica il codice desiderato — verifica che lo stato sia 'Attivo' (badge verde)",
+        "Clicca sulla riga del codice per selezionarlo",
+        "Il codice appare come nuova riga nella griglia con nome troncato e tooltip al passaggio del mouse"
+      ],
+      "screenshotsNeeded": [
+        "Picker codici aperto con tabella CODICE / TIPO / SOTTOTIPO / CLIENTE / PAESE / DESCRIZIONE / STATO",
+        "Picker con campo Filter compilato e risultati filtrati",
+        "Griglia con codice già aggiunto e tooltip visibile al hover"
+      ],
+      "clarifications": {
+        "filterFields": "Il campo Filter cerca solo su CODICE e DESCRIZIONE",
+        "nonActiveItems": "I codici 'Non attivo' (badge rosso) sono visibili in lista ma non cliccabili",
+        "maxRows": "Nessun limite al numero di codici aggiungibili",
+        "uniqueness": "Ogni codice può essere inserito una sola volta; i duplicati sono bloccati"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "inserisci-ore-timesheet",
+      "title": "Inserire le ore per codice e giorno",
+      "description": "Compila le celle della griglia con le ore lavorate su ciascun progetto, giorno per giorno.",
+      "icon": "⏱️",
+      "difficulty": "base",
+      "estimatedMinutes": 3,
+      "section": "Timesheet",
+      "priority": 4,
+      "explanation": "Con i codici aggiunti alla griglia puoi inserire le ore per ogni giorno. Clicca sulla cella corrispondente al giorno e digita il numero di ore — sono ammessi valori decimali (es. 0.5, 7.5). Il totale giornaliero si aggiorna in tempo reale: se supera il Work Schedule di 8.0h le celle diventano rosse e viene calcolato lo straordinario. Inserire più di 24h in un singolo giorno blocca l'invio.",
+      "draftSteps": [
+        "Assicurati di avere almeno un codice progetto aggiunto alla griglia",
+        "Clicca sulla cella della colonna del giorno desiderato (Mar, Mer, Gio…) nella riga del codice",
+        "Digita il numero di ore (interi o decimali, es. 8 oppure 7.5)",
+        "Osserva la riga 'Ore totali' in basso: se supera 8.0h la cella diventa rossa e appare lo straordinario nella riga 'Straordinario giornaliero'"
+      ],
+      "screenshotsNeeded": [
+        "Griglia con ore inserite e totale giornaliero in rosso (straordinario)",
+        "Riga 'Ore totali', 'Work Schedule' e 'Straordinario giornaliero' visibili"
+      ],
+      "clarifications": {
+        "decimalsAllowed": true,
+        "maxHoursPerDay": 24,
+        "overtimeDisplay": "Celle e totale diventano rossi se si supera il Work Schedule (8.0h/giorno); non blocca la compilazione ma blocca l'invio se si superano le 24h",
+        "weekendHours": "Le celle weekend (Sab/Dom) si abilitano automaticamente per inserire straordinari"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "rimuovi-codice-timesheet",
+      "title": "Rimuovere un codice progetto dalla griglia",
+      "description": "Elimina un codice progetto dalla griglia, con o senza ore già inserite.",
+      "icon": "🗑️",
+      "difficulty": "base",
+      "estimatedMinutes": 2,
+      "section": "Timesheet",
+      "priority": 5,
+      "explanation": "Se hai aggiunto un codice per errore o non ti serve più, puoi rimuoverlo cliccando il pulsante '–' accanto al nome. Se la riga è vuota viene rimossa subito. Se contiene ore inserite il portale ti avvisa con una dialog di conferma: le ore verranno cancellate definitivamente.",
+      "draftSteps": [
+        "Individua nella griglia il codice da rimuovere",
+        "Clicca il pulsante '–' a destra del nome del codice nella riga",
+        "Se la riga è vuota: il codice viene rimosso immediatamente",
+        "Se la riga contiene ore: leggi la dialog 'Rimuovi riga' e clicca 'Conferma' per procedere (oppure 'Annulla' per tornare indietro)"
+      ],
+      "screenshotsNeeded": [
+        "Griglia con pulsante '–' visibile accanto a un codice progetto",
+        "Dialog 'Rimuovi riga' con testo di conferma e bottoni Annulla / Conferma"
+      ],
+      "clarifications": {
+        "emptyRow": "Riga senza ore: rimossa immediatamente, nessuna dialog",
+        "rowWithHours": "Riga con ore: mostra dialog di conferma, le ore vengono cancellate definitivamente"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "azzera-griglia-timesheet",
+      "title": "Azzerare la griglia del timesheet",
+      "description": "Cancella tutti i codici e le ore inserite nella griglia in un'unica operazione.",
+      "icon": "🔄",
+      "difficulty": "base",
+      "estimatedMinutes": 1,
+      "section": "Timesheet",
+      "priority": 6,
+      "explanation": "Il pulsante 'Azzera' rimuove contemporaneamente tutti i codici progetto e tutte le ore inserite nella griglia. L'operazione è irreversibile: il portale ti chiede conferma prima di procedere. Usalo quando vuoi ricominciare da capo la compilazione del periodo.",
+      "draftSteps": [
+        "Clicca il pulsante 'Azzera' in alto a destra nella barra del timesheet",
+        "Leggi la dialog 'Azzera griglia': l'operazione non è reversibile",
+        "Clicca 'Conferma' per azzerare (oppure 'Annulla' per tornare indietro)",
+        "La griglia torna allo stato iniziale: nessun codice, nessuna ora inserita"
+      ],
+      "screenshotsNeeded": [
+        "Dialog 'Azzera griglia' con messaggio di avvertimento e bottoni Annulla / Conferma (rosso)"
+      ],
+      "clarifications": {
+        "irreversible": true,
+        "scope": "Cancella tutti i codici e tutte le ore del periodo corrente visualizzato"
+      }
+    },
+    {
+      "status": "ready",
+      "suggestedId": "invia-timesheet-settimanale",
+      "title": "Compilare e inviare il timesheet settimanale",
+      "description": "Procedura completa: aggiungi i codici, inserisci le ore, imposta la Work Location e invia il timesheet.",
+      "icon": "📤",
+      "difficulty": "medio",
+      "estimatedMinutes": 10,
+      "section": "Timesheet",
+      "priority": 7,
+      "explanation": "Inviare il timesheet è la procedura principale che svolgi ogni settimana. Devi aggiungere i codici progetto su cui hai lavorato, inserire le ore per ogni giorno e specificare dove hai lavorato (Work Location). Il portale mostra un riepilogo prima dell'invio definitivo. Una volta inviato la griglia diventa in sola lettura e il timesheet non è più modificabile autonomamente. Attenzione: puoi inviare anche con ore totali inferiori alle 40h previste, ma il sistema ti avvisa. La scadenza per l'invio è entro la fine del periodo selezionato.",
+      "draftSteps": [
+        "Verifica che il periodo selezionato sia corretto (es. '1 – 7 Set 2026')",
+        "Imposta la Work Location per ogni giorno lavorativo in cui hai ore",
+        "Clicca 'Seleziona codice' e aggiungi tutti i codici progetto su cui hai lavorato",
+        "Inserisci le ore per ciascun codice e per ciascun giorno",
+        "Controlla la riga 'Ore totali': celle rosse indicano straordinario, non bloccano l'invio salvo superamento delle 24h",
+        "Clicca il pulsante 'Invia timesheet' in alto a destra",
+        "Leggi il riepilogo nella modale: verifica i totali per progetto e il totale ore",
+        "Clicca 'Invia' per confermare l'invio",
+        "Attendi il toast di conferma 'Timesheet inviato — XX.Xh totali'",
+        "Verifica il banner verde 'Timesheet inviato con successo. La griglia è in sola lettura'"
+      ],
+      "screenshotsNeeded": [
+        "Griglia principale con codici e ore compilati",
+        "Modale 'Riepilogo timesheet' con tabella PROGETTO / ORE TOTALI",
+        "Toast di conferma 'Timesheet inviato'",
+        "Stato post-invio con banner verde e griglia in sola lettura"
+      ],
+      "clarifications": {
+        "sendWithFewerHours": "Si può inviare con ore totali inferiori al Work Schedule; il sistema avvisa ma non blocca",
+        "afterSend": "La griglia diventa in sola lettura; lo sblocco è possibile solo tramite admin (fuori scope di questa missione)",
+        "deadline": "Il timesheet va inviato entro la fine del periodo selezionato",
+        "overtimeBlocking": "Superare le 24h in un singolo giorno blocca l'invio con messaggio di errore"
+      }
+    }
+  ]
+}

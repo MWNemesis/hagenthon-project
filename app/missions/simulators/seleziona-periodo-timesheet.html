@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore — Selezionare il periodo del timesheet</title>
+  <script src="../../js/tracker.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --portal-primary:    #4F46E5;
+      --portal-primary-dk: #4338CA;
+      --portal-bg:         #F9FAFB;
+      --portal-text:       #111827;
+      --portal-text-muted: #6B7280;
+      --portal-border:     #E5E7EB;
+      --portal-border-dk:  #D1D5DB;
+      --portal-selected:   #EEF2FF;
+      --portal-badge-idle: #E0E7FF;
+      --portal-green:      #10B981;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F3F4F6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Simulator bar ── */
+    .sim-bar {
+      background: #0f0f1a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+      z-index: 100;
+      border-bottom: 2px solid #A100FF;
+    }
+    .sim-bar-left { display: flex; align-items: center; gap: 10px; }
+    .sim-badge {
+      background: #A100FF;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .sim-mission-title { color: #cbd5e1; font-size: 13px; }
+    .sim-complete-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sim-complete-btn:hover { background: #15803d; }
+
+    /* ── Portal wrapper ── */
+    .portal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: white;
+    }
+
+    /* ── Navigation tabs ── */
+    .pt-header {
+      background: white;
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .pt-tab {
+      padding: 0 20px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: var(--portal-text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: default;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pt-tab.active {
+      color: var(--portal-primary);
+      border-bottom-color: var(--portal-primary);
+      font-weight: 500;
+    }
+
+    /* ── Toolbar row ── */
+    .pt-toolbar {
+      background: white;
+      border-bottom: 1px solid var(--portal-border);
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-periodo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid var(--portal-border-dk);
+      border-radius: 20px;
+      padding: 5px 14px 5px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--portal-text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-periodo:hover { background: var(--portal-bg); border-color: #9CA3AF; }
+    .btn-periodo .dot {
+      color: var(--portal-primary);
+      font-size: 9px;
+      line-height: 1;
+    }
+    .pt-nav-arrow {
+      background: white;
+      border: 1px solid var(--portal-border-dk);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      cursor: default;
+      color: #6B7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pt-date-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      padding: 0 4px;
+    }
+    .pt-toolbar-right {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .btn-azzera {
+      background: white;
+      border: 1px solid var(--portal-border-dk);
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #374151;
+      cursor: default;
+    }
+    .btn-invia {
+      background: var(--portal-green);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      cursor: default;
+      opacity: 0.65;
+    }
+
+    /* ── Timesheet grid ── */
+    .pt-main {
+      flex: 1;
+      overflow-y: auto;
+      background: white;
+    }
+    .timesheet-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .timesheet-grid th {
+      background: white;
+      border: 1px solid var(--portal-border);
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+    .timesheet-grid th.col-project {
+      text-align: left;
+      padding-left: 16px;
+      width: 240px;
+      min-width: 180px;
+    }
+    .day-name { display: block; font-size: 11px; color: #6B7280; font-weight: 400; }
+    .day-num  { display: block; font-size: 14px; font-weight: 600; color: #374151; }
+    th.weekend .day-name,
+    th.weekend .day-num { color: #9CA3AF; }
+
+    .timesheet-grid td {
+      border: 1px solid var(--portal-border);
+      padding: 9px 6px;
+      text-align: center;
+      vertical-align: middle;
+      color: #374151;
+    }
+    .timesheet-grid td.col-project {
+      text-align: left;
+      padding-left: 16px;
+      color: #9CA3AF;
+      font-size: 13px;
+    }
+    .timesheet-grid td.col-project.lbl {
+      color: #374151;
+      font-weight: 500;
+      text-align: right;
+      padding-right: 16px;
+      padding-left: 0;
+    }
+    .timesheet-grid td.col-project.wl-lbl {
+      color: var(--portal-primary);
+      font-weight: 600;
+      text-align: right;
+      padding-right: 16px;
+      padding-left: 0;
+    }
+    .timesheet-grid td.weekend { background: #F9FAFB; }
+    .row-totali td { font-weight: 700; background: var(--portal-bg); }
+    .row-schedule td,
+    .row-straordinario td { background: #FAFAFA; }
+
+    .wl-select {
+      border: 1px solid var(--portal-border-dk);
+      border-radius: 4px;
+      padding: 2px 2px;
+      font-size: 12px;
+      width: 72px;
+      color: #374151;
+      background: white;
+    }
+    .wl-select:disabled { background: #F3F4F6; color: #9CA3AF; cursor: default; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.32);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .modal-box {
+      background: white;
+      border-radius: 16px;
+      width: 500px;
+      max-width: 94vw;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 24px 24px 4px;
+    }
+    .modal-head h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--portal-text);
+    }
+    .modal-close {
+      background: none; border: none;
+      font-size: 22px; color: #9CA3AF;
+      cursor: pointer; line-height: 1; padding: 0 2px;
+    }
+    .modal-close:hover { color: #374151; }
+    .modal-subtitle {
+      padding: 4px 24px 4px;
+      font-size: 14px;
+      color: var(--portal-text-muted);
+    }
+
+    /* Option cards */
+    .modal-options {
+      padding: 14px 24px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .option-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1.5px solid var(--portal-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .option-card:hover { border-color: #A5B4FC; background: #FAFAFA; }
+    .option-card.selected {
+      border-color: var(--portal-primary);
+      background: var(--portal-selected);
+    }
+    .option-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--portal-badge-idle);
+      color: var(--portal-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .option-card.selected .option-badge {
+      background: var(--portal-primary);
+      color: white;
+    }
+    .option-info { flex: 1; }
+    .option-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--portal-text);
+      margin-bottom: 2px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: var(--portal-text-muted);
+      line-height: 1.4;
+    }
+
+    /* Modal footer */
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px 24px;
+    }
+    .btn-annulla {
+      background: white;
+      border: 1.5px solid var(--portal-border-dk);
+      color: #374151;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-annulla:hover { background: var(--portal-bg); }
+    .btn-conferma {
+      background: var(--portal-primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-conferma:hover { background: var(--portal-primary-dk); }
+
+    /* ── Hint card ── */
+    .hint-card {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1b4b;
+      color: white;
+      border: 1px solid #4f46e5;
+      border-radius: 12px;
+      padding: 14px 18px;
+      max-width: 440px;
+      width: calc(100% - 48px);
+      box-shadow: 0 8px 32px rgba(79,70,229,.35);
+      z-index: 350;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: slideUp .3s ease;
+    }
+    .hint-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .hint-text  { flex: 1; }
+    .hint-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #a5b4fc; margin-bottom: 3px; }
+    .hint-msg   { font-size: 14px; color: #e0e7ff; line-height: 1.4; }
+    .hint-close { background: none; border: none; color: #a5b4fc; font-size: 16px; cursor: pointer; padding: 0 2px; flex-shrink: 0; }
+    .hint-close:hover { color: white; }
+
+    @keyframes slideUp {
+      from { transform: translateX(-50%) translateY(12px); opacity: 0; }
+      to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Simulator bar ── -->
+  <div class="sim-bar">
+    <div class="sim-bar-left">
+      <span class="sim-badge">SIMULATORE</span>
+      <span class="sim-mission-title">Selezionare il periodo del timesheet</span>
+    </div>
+    <button class="sim-complete-btn" onclick="Tracker.complete()">&#10003; Completa missione</button>
+  </div>
+
+  <!-- ── Portal ── -->
+  <div class="portal">
+
+    <!-- Navigation tabs -->
+    <header class="pt-header">
+      <span class="pt-tab active">Ore</span>
+      <span class="pt-tab">Codici Progetto</span>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="pt-toolbar">
+      <button
+        class="btn-periodo"
+        id="btnPeriodo"
+        data-track-id="btn-periodo-selector"
+        onclick="openPeriodoModal()"
+      >
+        <span class="dot">&#9679;</span>
+        <span id="periodoLabel">Settimana</span>
+      </button>
+      <div class="pt-nav-arrow">&#8249;</div>
+      <span class="pt-date-label" id="dateRangeLabel">1 &ndash; 7 Set 2026</span>
+      <div class="pt-nav-arrow">&#8250;</div>
+      <div class="pt-toolbar-right">
+        <button class="btn-azzera">Azzera</button>
+        <button class="btn-invia">Invia timesheet</button>
+      </div>
+    </div>
+
+    <!-- Main timesheet grid -->
+    <main class="pt-main">
+      <table class="timesheet-grid">
+        <thead>
+          <tr>
+            <th class="col-project">Codici Progetto</th>
+            <th><span class="day-name">Mar</span><span class="day-num">1</span></th>
+            <th><span class="day-name">Mer</span><span class="day-num">2</span></th>
+            <th><span class="day-name">Gio</span><span class="day-num">3</span></th>
+            <th><span class="day-name">Ven</span><span class="day-num">4</span></th>
+            <th class="weekend"><span class="day-name">Sab</span><span class="day-num">5</span></th>
+            <th class="weekend"><span class="day-name">Dom</span><span class="day-num">6</span></th>
+            <th><span class="day-name">Lun</span><span class="day-num">7</span></th>
+            <th>Tot.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Work Location row -->
+          <tr>
+            <td class="col-project wl-lbl">Work Location</td>
+            <td><select class="wl-select"><option value=""></option><option>Office</option><option>Home</option></select></td>
+            <td><select class="wl-select"><option value=""></option><option>Office</option><option>Home</option></select></td>
+            <td><select class="wl-select"><option value=""></option><option>Office</option><option>Home</option></select></td>
+            <td><select class="wl-select"><option value=""></option><option>Office</option><option>Home</option></select></td>
+            <td class="weekend"><select class="wl-select" disabled><option value=""></option></select></td>
+            <td class="weekend"><select class="wl-select" disabled><option value=""></option></select></td>
+            <td><select class="wl-select"><option value=""></option><option>Office</option><option>Home</option></select></td>
+            <td></td>
+          </tr>
+          <!-- Project placeholder rows -->
+          <tr>
+            <td class="col-project">Seleziona codice</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td class="col-project">Seleziona codice</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td class="col-project">Seleziona codice</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td class="col-project">Seleziona codice</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td class="col-project">Seleziona codice</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td></td>
+          </tr>
+          <!-- Ore totali -->
+          <tr class="row-totali">
+            <td class="col-project lbl">Ore totali</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td><strong>0</strong></td>
+          </tr>
+          <!-- Work Schedule -->
+          <tr class="row-schedule">
+            <td class="col-project lbl" style="font-weight:400">Work Schedule</td>
+            <td>8.0</td><td>8.0</td><td>8.0</td><td>8.0</td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td>8.0</td><td>40.0</td>
+          </tr>
+          <!-- Straordinario -->
+          <tr class="row-straordinario">
+            <td class="col-project lbl" style="font-weight:400">Straordinario giornaliero</td>
+            <td></td><td></td><td></td><td></td>
+            <td class="weekend"></td><td class="weekend"></td>
+            <td></td><td>0</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- ── Modal: Seleziona il periodo ── -->
+  <div class="modal-overlay" id="modalPeriodo" style="display:none">
+    <div class="modal-box">
+
+      <div class="modal-head">
+        <h2>Seleziona il periodo</h2>
+        <button class="modal-close" onclick="closePeriodoModal()">&#215;</button>
+      </div>
+      <p class="modal-subtitle">Scegli come visualizzare e inserire le ore.</p>
+
+      <div class="modal-options">
+
+        <!-- Settimana -->
+        <div
+          class="option-card selected"
+          id="opt-settimana"
+          onclick="selectPeriodo('settimana')"
+        >
+          <div class="option-badge">7</div>
+          <div class="option-info">
+            <div class="option-title">Settimana</div>
+            <div class="option-desc">Visualizza 7 giorni alla volta (1&ndash;7, 8&ndash;14, 15&ndash;21, 22&ndash;28, 29&ndash;fine mese).</div>
+          </div>
+        </div>
+
+        <!-- Due settimane -->
+        <div
+          class="option-card"
+          id="opt-due-settimane"
+          data-track-id="option-due-settimane"
+          onclick="selectPeriodo('due-settimane')"
+        >
+          <div class="option-badge">14</div>
+          <div class="option-info">
+            <div class="option-title">Due settimane</div>
+            <div class="option-desc">Visualizza due blocchi per mese: 1&ndash;15 e 16&ndash;fine mese.</div>
+          </div>
+        </div>
+
+        <!-- Mensile -->
+        <div
+          class="option-card"
+          id="opt-mensile"
+          onclick="selectPeriodo('mensile')"
+        >
+          <div class="option-badge">31</div>
+          <div class="option-info">
+            <div class="option-title">Mensile</div>
+            <div class="option-desc">Visualizza l&#8217;intero mese corrente.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-annulla" onclick="closePeriodoModal()">Annulla</button>
+        <button
+          class="btn-conferma"
+          data-track-id="btn-conferma-periodo"
+          onclick="confermaPeriodo()"
+        >Conferma</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────
+    let currentPeriodo = 'settimana';
+
+    const PERIODO_LABELS = {
+      'settimana':     'Settimana',
+      'due-settimane': 'Due settimane',
+      'mensile':       'Mensile'
+    };
+
+    // ── Modal helpers ──────────────────────────────────────────────────
+    function openPeriodoModal() {
+      document.getElementById('modalPeriodo').style.display = 'flex';
+    }
+
+    function closePeriodoModal() {
+      document.getElementById('modalPeriodo').style.display = 'none';
+    }
+
+    function selectPeriodo(val) {
+      currentPeriodo = val;
+      ['settimana', 'due-settimane', 'mensile'].forEach(id => {
+        const card = document.getElementById('opt-' + id);
+        if (card) card.classList.toggle('selected', id === val);
+      });
+    }
+
+    function confermaPeriodo() {
+      const label = PERIODO_LABELS[currentPeriodo] || 'Settimana';
+      document.getElementById('periodoLabel').textContent = label;
+      closePeriodoModal();
+    }
+
+    // ── Hint system ────────────────────────────────────────────────────
+    const HINT_DELAY = 20000;
+    let lastInteraction = Date.now();
+    let hintActive = false;
+
+    ['click', 'keydown', 'touchstart'].forEach(ev =>
+      document.addEventListener(ev, () => {
+        lastInteraction = Date.now();
+        if (hintActive) dismissHint();
+      }, { passive: true })
+    );
+
+    setInterval(() => {
+      if (hintActive) return;
+      if (Date.now() - lastInteraction < HINT_DELAY) return;
+      showNextHint();
+    }, 2000);
+
+    function showNextHint() {
+      const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (!mission.steps) return;
+      const log = Tracker.getLog();
+      const nextStep = mission.steps.find(step =>
+        !log.some(a => a.action === step.action && a.targetId === step.target)
+      );
+      if (!nextStep) return;
+      hintActive = true;
+      const card = document.createElement('div');
+      card.className = 'hint-card';
+      card.id = 'hint-card';
+      card.innerHTML =
+        '<span class="hint-icon">&#128161;</span>' +
+        '<div class="hint-text">' +
+          '<div class="hint-label">Suggerimento</div>' +
+          '<div class="hint-msg">' + nextStep.description + '</div>' +
+        '</div>' +
+        '<button class="hint-close" onclick="dismissHint()">&#10005;</button>';
+      document.body.appendChild(card);
+    }
+
+    function dismissHint() {
+      const card = document.getElementById('hint-card');
+      if (card) card.remove();
+      hintActive = false;
+      lastInteraction = Date.now();
+    }
+  </script>
+
+</body>
+</html>

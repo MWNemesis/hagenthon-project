@@ -1,0 +1,34 @@
+{
+  "id": "seleziona-periodo-timesheet",
+  "title": "Selezionare il periodo del timesheet",
+  "description": "Scegli come visualizzare e inserire le ore: per settimana, due settimane o per l'intero mese.",
+  "icon": "📅",
+  "difficulty": "base",
+  "estimatedMinutes": 2,
+  "explanation": "Prima di inserire le ore devi scegliere il periodo di riferimento. Puoi visualizzare il timesheet per settimana (blocchi 1–7, 8–14, 15–21, 22–28, 29–fine mese), per due settimane (1–15 e 16–fine mese) o per l'intero mese. La scelta si resetta ad ogni accesso: il portale riparte sempre dalla vista Settimana. Se un periodo è già stato inviato, puoi comunque cambiare periodo per compilarne un altro.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca sul pulsante 'Settimana' in alto a sinistra per aprire il selettore periodo",
+      "action": "click",
+      "target": "btn-periodo-selector",
+      "errorMessage": "Non hai aperto il selettore del periodo. Clicca sul pulsante 'Settimana' in alto a sinistra."
+    },
+    {
+      "id": "step-2",
+      "description": "Seleziona l'opzione 'Due settimane'",
+      "action": "click",
+      "target": "option-due-settimane",
+      "errorMessage": "Non hai selezionato 'Due settimane'. Clicca sulla riga corrispondente nella modale."
+    },
+    {
+      "id": "step-3",
+      "description": "Clicca 'Conferma' per applicare la selezione",
+      "action": "click",
+      "target": "btn-conferma-periodo",
+      "errorMessage": "Non hai confermato la selezione. Clicca il pulsante 'Conferma'."
+    }
+  ],
+  "simulator": "missions/simulators/seleziona-periodo-timesheet.html",
+  "successMessage": "Ottimo! Sai come cambiare il periodo del timesheet. Ricorda: la scelta si resetta ad ogni accesso — il portale riparte sempre da 'Settimana'."
+}

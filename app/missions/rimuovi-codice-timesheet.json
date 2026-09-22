@@ -1,0 +1,27 @@
+{
+  "id": "rimuovi-codice-timesheet",
+  "title": "Rimuovere un codice progetto dalla griglia",
+  "description": "Elimina un codice progetto dalla griglia, con la gestione della dialog di conferma quando ci sono ore inserite.",
+  "icon": "🗑️",
+  "difficulty": "base",
+  "estimatedMinutes": 2,
+  "explanation": "Se hai aggiunto un codice per errore o non ti serve più, puoi rimuoverlo cliccando il pulsante '–' accanto al nome. Se la riga è vuota viene rimossa subito. Se contiene ore inserite il portale ti avvisa con una dialog di conferma: le ore verranno cancellate definitivamente e l'operazione non è reversibile.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca il pulsante '–' a destra del nome del codice 'CTUR9003 – Italy Operations'",
+      "action": "click",
+      "target": "btn-rimuovi-riga",
+      "errorMessage": "Non hai cliccato il pulsante di rimozione. Cerca il pulsante '–' a destra del nome del codice progetto."
+    },
+    {
+      "id": "step-2",
+      "description": "Leggi la dialog di conferma e clicca 'Conferma' per procedere con la rimozione",
+      "action": "click",
+      "target": "btn-conferma-rimuovi",
+      "errorMessage": "Non hai confermato la rimozione. Nella dialog 'Rimuovi riga' clicca il pulsante 'Conferma'."
+    }
+  ],
+  "simulator": "missions/simulators/rimuovi-codice-timesheet.html",
+  "successMessage": "Corretto! Hai rimosso il codice dalla griglia. Attenzione: se la riga contiene ore, la rimozione le cancella definitivamente — l'operazione non è reversibile."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "azzera-griglia-timesheet",
+  "title": "Azzerare la griglia del timesheet",
+  "description": "Cancella tutti i codici e le ore inserite nella griglia in un'unica operazione.",
+  "icon": "🔄",
+  "difficulty": "base",
+  "estimatedMinutes": 1,
+  "explanation": "Il pulsante 'Azzera' rimuove contemporaneamente tutti i codici progetto e tutte le ore inserite nella griglia corrente. L'operazione è irreversibile: il portale ti chiede conferma prima di procedere. Usalo quando vuoi ricominciare da capo la compilazione del periodo.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Clicca il pulsante 'Azzera' in alto a destra nella barra del timesheet",
+      "action": "click",
+      "target": "btn-azzera",
+      "errorMessage": "Non hai cliccato 'Azzera'. Il pulsante si trova in alto a destra, accanto a 'Invia timesheet'."
+    },
+    {
+      "id": "step-2",
+      "description": "Leggi l'avviso e clicca 'Conferma' — l'operazione è irreversibile",
+      "action": "click",
+      "target": "btn-conferma-azzera",
+      "errorMessage": "Non hai confermato l'operazione. Nella dialog 'Azzera griglia' clicca 'Conferma'."
+    }
+  ],
+  "simulator": "missions/simulators/azzera-griglia-timesheet.html",
+  "successMessage": "Perfetto! Hai azzerato la griglia. Ricorda che l'operazione è irreversibile: tutti i codici e le ore vengono cancellati definitivamente."
+}
