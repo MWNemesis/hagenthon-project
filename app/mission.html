@@ -3,57 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Missione — PortalSim</title>
+  <title>Missione — Portal Simulator</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <header class="app-header">
     <a href="index.html" class="logo">
-      <div class="logo-icon">🎯</div>
-      PortalSim
+      <div class="logo-icon">🎓</div>
+      Portal<span class="logo-accent">Simulator</span>
     </a>
-    <a href="index.html" class="btn-back">← Torna alle missioni</a>
+    <a href="index.html" class="btn-back">← Missioni</a>
   </header>
 
-  <main class="page-container">
-    <div id="page-header" class="page-header">
-      <h1 id="mission-title">Caricamento...</h1>
-      <p id="mission-desc"></p>
+  <div class="mission-hero">
+    <div class="mission-hero-inner">
+      <div class="mission-hero-icon" id="hero-icon">⏳</div>
+      <div class="mission-hero-text">
+        <h1 id="mission-title">Caricamento...</h1>
+        <p id="mission-desc"></p>
+        <div class="mission-hero-chips" id="hero-chips"></div>
+      </div>
     </div>
+  </div>
 
+  <main class="page-container">
     <div class="mission-detail-layout">
 
       <div class="mission-explanation">
-        <h2>Come si fa</h2>
-        <p id="mission-explanation"></p>
-
-        <h2>Passaggi da eseguire</h2>
-        <ol id="steps-list" class="steps-list"></ol>
+        <div class="explanation-section">
+          <h2>Contesto</h2>
+          <p id="mission-explanation"></p>
+        </div>
+        <div class="explanation-section">
+          <h2>Passaggi da eseguire</h2>
+          <ol id="steps-list" class="steps-list"></ol>
+        </div>
       </div>
 
       <aside class="info-card">
-        <h3>Dettagli missione</h3>
-
-        <div class="info-row">
-          <span class="label">Difficoltà</span>
-          <span class="value" id="info-difficulty">—</span>
+        <div class="info-card-header">
+          <h3>Dettagli missione</h3>
         </div>
-        <div class="info-row">
-          <span class="label">Durata stimata</span>
-          <span class="value" id="info-time">—</span>
+        <div class="info-card-body">
+          <div class="info-row">
+            <span class="label">Difficoltà</span>
+            <span class="value" id="info-difficulty">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Durata stimata</span>
+            <span class="value" id="info-time">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Passaggi</span>
+            <span class="value" id="info-steps">—</span>
+          </div>
+          <a id="btn-start" class="btn-primary" href="#">
+            ▶ &nbsp;Inizia simulazione
+          </a>
         </div>
-        <div class="info-row">
-          <span class="label">Passaggi</span>
-          <span class="value" id="info-steps">—</span>
-        </div>
-
-        <div class="progress-bar-wrap" style="margin-top:1rem;">
-          <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
-        </div>
-        <p style="font-size:.75rem; color:var(--gray-400); margin-top:.4rem;" id="progress-label">Non ancora iniziata</p>
-
-        <a id="btn-start" class="btn-primary" href="#">Inizia simulazione →</a>
       </aside>
 
     </div>
@@ -65,38 +73,42 @@
 
     async function loadMission() {
       if (!missionId) { window.location.href = 'index.html'; return; }
-
       try {
         const res = await fetch(`missions/${missionId}.json`);
         if (!res.ok) throw new Error();
-        const m = await res.json();
-        render(m);
+        render(await res.json());
       } catch {
         document.getElementById('mission-title').textContent = 'Missione non trovata';
       }
     }
 
     function render(m) {
-      document.title = `${m.title} — PortalSim`;
+      document.title = `${m.title} — Portal Simulator`;
+
+      document.getElementById('hero-icon').textContent = m.icon || '📌';
       document.getElementById('mission-title').textContent = m.title;
       document.getElementById('mission-desc').textContent = m.description;
       document.getElementById('mission-explanation').textContent = m.explanation;
 
-      document.getElementById('info-difficulty').textContent = m.difficulty || '—';
+      const diffLabel = { base: 'Base', medio: 'Medio', avanzato: 'Avanzato' }[m.difficulty] || m.difficulty;
+      document.getElementById('info-difficulty').textContent = diffLabel;
       document.getElementById('info-time').textContent = `${m.estimatedMinutes} min`;
-      document.getElementById('info-steps').textContent = m.steps.length;
+      document.getElementById('info-steps').textContent = `${m.steps.length} step`;
 
-      const stepsList = document.getElementById('steps-list');
-      stepsList.innerHTML = m.steps.map((s, i) => `
+      document.getElementById('hero-chips').innerHTML = `
+        <div class="hero-chip">⏱ ${m.estimatedMinutes} min</div>
+        <div class="hero-chip">📋 ${m.steps.length} step</div>
+        <div class="hero-chip">📊 ${diffLabel}</div>`;
+
+      document.getElementById('steps-list').innerHTML = m.steps.map((s, i) => `
         <li class="step-item">
-          <div class="step-number">${i + 1}</div>
+          <div class="step-left">
+            <div class="step-number">${i + 1}</div>
+          </div>
           <span class="step-text">${s.description}</span>
         </li>`).join('');
 
-      const btn = document.getElementById('btn-start');
-      btn.href = m.simulator;
-
-      // salva la missione corrente in sessionStorage per il tracker
+      document.getElementById('btn-start').href = m.simulator;
       sessionStorage.setItem('currentMission', JSON.stringify(m));
     }
 
