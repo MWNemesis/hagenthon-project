@@ -137,7 +137,24 @@ Se l'input era XLSX/CSV o testo (non _catalog.json), chiedi gli screenshot:
 Se l'input era `_catalog.json`, usa i `screenshotsNeeded` già indicati
 dall'agente portal-analyzer come riferimento per richiedere solo quelli mancanti.
 
-### 4. Generazione in sequenza
+### 4. Generazione in parallelo
+
+Lancia ogni missione come Agent separato con `run_in_background: true`.
+Massimo **3 agent in parallelo contemporaneamente** per non saturare il contesto.
+
+**Schema di esecuzione (es. 5 missioni → 2 batch):**
+
+```
+Batch 1: [missione-1] [missione-2] [missione-3]  ← lancia tutti insieme
+Batch 2: [missione-4] [missione-5]               ← lancia quando batch 1 è completo
+```
+
+Per ogni agent passa:
+- La procedura in linguaggio naturale
+- Gli screenshot pertinenti (già raccolti al passo 3)
+- L'ID suggerito dalla lista confermata al passo 2
+
+Mostra il progresso a mano a mano che gli agent completano:
 
 Per ogni missione nella lista, senza interrompere lo sviluppatore:
 

@@ -70,6 +70,10 @@ Leggi `app/missions/simulators/[id].html` e verifica:
 
 ### Fase 3 — Test funzionale
 
+**Esegui questa fase solo se Fase 1 e Fase 2 non hanno errori bloccanti.**
+Se ci sono errori bloccanti, salta il browser test e riporta subito il report finale —
+il test funzionale su un simulatore strutturalmente rotto è sempre inaffidabile e costoso.
+
 Delega all'agente `mission-tester` passando:
 - Il path del simulatore HTML
 - La lista degli step con `action` e `target`
