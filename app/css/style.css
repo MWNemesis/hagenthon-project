@@ -58,7 +58,8 @@ body {
 .app-header .logo .logo-icon {
   width: 36px;
   height: 36px;
-  background: var(--primary);
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
