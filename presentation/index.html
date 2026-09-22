@@ -246,8 +246,8 @@
       margin: 0 auto .75rem;
     }
 
-    .flow-name { font-size: .85rem; font-weight: 700; margin-bottom: .2rem; }
-    .flow-desc { font-size: .72rem; color: var(--gray-500); line-height: 1.4; }
+    .flow-name { font-size: .85rem; font-weight: 700; margin-bottom: .4rem; }
+    .flow-desc { font-size: .72rem; color: var(--gray-500); line-height: 1.5; }
 
     .flow-arrow {
       color: var(--gray-600);
@@ -301,9 +301,9 @@
     .pill-s { border-color: rgba(161,0,255,.25); }
     .pill-a { border-color: rgba(0,255,133,.2); }
 
-    .pill-cmd { font-family: monospace; font-size: .75rem; font-weight: 700; color: var(--purple); }
+    .pill-cmd   { font-family: monospace; font-size: .75rem; font-weight: 700; color: var(--purple); }
     .pill-cmd-g { font-family: monospace; font-size: .75rem; font-weight: 700; color: var(--green); }
-    .pill-txt { color: var(--gray-500); }
+    .pill-txt   { color: var(--gray-500); }
 
     /* ── Checkpoint flow ── */
     .cp-flow { display: flex; flex-direction: column; gap: .5rem; width: 100%; max-width: 580px; }
@@ -334,8 +334,7 @@
     }
 
     .cp-num-ok { background: #16a34a; }
-
-    .cp-label { flex: 1; }
+    .cp-label  { flex: 1; }
 
     .cp-tag {
       font-size: .62rem;
@@ -388,6 +387,30 @@
       background: var(--purple);
       margin: 1.5rem auto;
     }
+
+    /* ── Reusability grid ── */
+    .reuse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .reuse-card {
+      background: #0a0a0a;
+      border: 1px solid #1e1e1e;
+      border-radius: 8px;
+      padding: 1.4rem 1.5rem;
+    }
+
+    .reuse-card.purple { border-color: var(--purple-border); background: var(--purple-dim); }
+    .reuse-card.green  { border-color: var(--green-border);  background: var(--green-dim); }
+
+    .reuse-icon { font-size: 1.5rem; margin-bottom: .6rem; }
+    .reuse-title { font-size: .88rem; font-weight: 700; margin-bottom: .45rem; }
+    .reuse-body  { font-size: .78rem; color: var(--gray-500); line-height: 1.6; }
+    .reuse-body strong { color: var(--gray-300); }
   </style>
 </head>
 <body>
@@ -422,23 +445,26 @@
   <div class="slide" data-index="1">
     <div class="eyebrow">Il problema</div>
     <h2 class="text-center" style="margin-bottom:2.25rem;">
-      Imparare un portale <span class="hp">complesso</span><br/>richiede tempo e risorse
+      L'onboarding sui portali aziendali<br/>è ancora <span class="hp">manuale e frammentato</span>
     </h2>
     <div class="cols-3 max-w">
-      <div class="card text-center">
-        <div class="card-label hd">Documentazione</div>
-        <div class="stat hp">80%</div>
-        <p style="color:var(--gray-500); font-size:.8rem; margin-top:.6rem; line-height:1.5;">delle procedure non ha formazione interattiva</p>
+      <div class="card">
+        <div class="card-label hd">Nessun ambiente sicuro</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          Il neoassunto opera sul sistema reale dal primo giorno. Non esiste uno spazio dove sbagliare, imparare e riprovare senza conseguenze.
+        </p>
       </div>
-      <div class="card text-center">
-        <div class="card-label hd">Autonomia</div>
-        <div class="stat" style="color:#f87171;">3+</div>
-        <p style="color:var(--gray-500); font-size:.8rem; margin-top:.6rem; line-height:1.5;">settimane per diventare autonomi sul portale</p>
+      <div class="card">
+        <div class="card-label hd">Affiancamento non scalabile</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          Ogni onboarding dipende dalla disponibilità di un collega senior. Con team in crescita, il modello 1:1 diventa insostenibile.
+        </p>
       </div>
-      <div class="card text-center">
-        <div class="card-label hd">Affiancamento</div>
-        <div class="stat" style="color:#fbbf24;">1:1</div>
-        <p style="color:var(--gray-500); font-size:.8rem; margin-top:.6rem; line-height:1.5;">non scalabile con la crescita del team</p>
+      <div class="card">
+        <div class="card-label hd">Conoscenza non trasferibile</div>
+        <p style="color:var(--gray-400); font-size:.88rem; line-height:1.7; margin-top:.5rem;">
+          Le procedure vivono nella testa delle persone. Ogni aggiornamento del portale rende obsoleta tutta la formazione precedente.
+        </p>
       </div>
     </div>
   </div>
@@ -446,32 +472,48 @@
   <!-- 3. LA SOLUZIONE -->
   <div class="slide" data-index="2">
     <div class="eyebrow">La soluzione</div>
-    <h2 class="text-center" style="margin-bottom:2.25rem;">
+    <h2 class="text-center" style="margin-bottom:2rem;">
       Il neoassunto impara <span class="hp">facendo</span>
     </h2>
-    <div class="flow max-w" style="max-width:820px;">
+    <div class="flow max-w" style="max-width:920px;">
       <div class="flow-step">
         <div class="flow-icon">📋</div>
         <div class="flow-name">Sceglie la missione</div>
-        <div class="flow-desc">Lista procedure<br/>disponibili</div>
+        <div class="flow-desc">
+          Lista filtrata per difficoltà<br/>
+          e area del portale.<br/>
+          Vede durata stimata e step.
+        </div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">
         <div class="flow-icon">📖</div>
         <div class="flow-name">Legge la spiegazione</div>
-        <div class="flow-desc">Step da eseguire<br/>e contesto</div>
+        <div class="flow-desc">
+          Contesto della procedura,<br/>
+          elenco dei passaggi attesi<br/>
+          e obiettivo finale.
+        </div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">
         <div class="flow-icon">🖥️</div>
         <div class="flow-name">Esegue nel simulatore</div>
-        <div class="flow-desc">Portale reale<br/>riprodotto</div>
+        <div class="flow-desc">
+          Replica fedele del portale reale.<br/>
+          Click, input e azioni tracciate.<br/>
+          Nessun rischio sul sistema reale.
+        </div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-step">
         <div class="flow-icon">✅</div>
         <div class="flow-name">Riceve il feedback</div>
-        <div class="flow-desc">Errori evidenziati<br/>o successo</div>
+        <div class="flow-desc">
+          Errori evidenziati step per step.<br/>
+          Suggerimenti contestuali.<br/>
+          Può riprovare e misurare il miglioramento.
+        </div>
       </div>
     </div>
   </div>
@@ -496,9 +538,9 @@
         <div class="arch-box-sub">Neoassunto — zero AI a runtime</div>
         <ul class="arch-list">
           <li>App HTML / CSS / JS statica</li>
-          <li>Funziona offline</li>
+          <li>Funziona offline, senza server</li>
           <li>Nessuna dipendenza esterna</li>
-          <li>Tracciamento lato client</li>
+          <li>Tracciamento e valutazione lato client</li>
         </ul>
       </div>
     </div>
@@ -532,14 +574,50 @@
     </div>
   </div>
 
-  <!-- 6. DEMO -->
-  <div class="slide text-center" data-index="5">
-    <div class="eyebrow">Live demo</div>
-    <h2>Proviamolo <span class="hp">insieme</span></h2>
-    <p class="tagline">Apri l'applicativo e segui una missione dal vivo</p>
-    <a class="demo-btn" href="../app/index.html" target="_blank">
-      ▶&nbsp; Apri Portal Simulator
-    </a>
+  <!-- 6. RIUSABILITÀ E VANTAGGI -->
+  <div class="slide" data-index="5">
+    <div class="eyebrow">Skill &amp; Agenti — Vantaggi</div>
+    <h2 class="text-center" style="margin-bottom:2rem;">
+      Un sistema <span class="hp">riusabile</span> e componibile
+    </h2>
+    <div class="reuse-grid">
+      <div class="reuse-card purple">
+        <div class="reuse-icon">♻️</div>
+        <div class="reuse-title hp">Indipendenti dal portale</div>
+        <div class="reuse-body">
+          Le skill funzionano con <strong>qualsiasi portale aziendale</strong> — SAP, Salesforce, tool custom o proprietari.
+          Il sistema di generazione non cambia: cambia solo il contenuto generato.
+        </div>
+      </div>
+      <div class="reuse-card">
+        <div class="reuse-icon">🔗</div>
+        <div class="reuse-title">Composabili per pipeline</div>
+        <div class="reuse-body">
+          Ogni agente ha un focus preciso e delega agli altri.
+          <strong>portal-analyzer → simulator-builder → mission-tester</strong>
+          formano una catena automatizzata che copre l'intero ciclo di vita.
+        </div>
+      </div>
+      <div class="reuse-card">
+        <div class="reuse-icon">📉</div>
+        <div class="reuse-title">Costo decrescente nel tempo</div>
+        <div class="reuse-body">
+          La prima missione include il setup degli agenti.
+          Dalla seconda in poi, generare una nuova procedura richiede
+          <strong>pochi minuti</strong> con <span style="font-family:monospace; color:var(--purple);">/generate-mission</span>
+          o <span style="font-family:monospace; color:var(--purple);">/batch-generate</span>.
+        </div>
+      </div>
+      <div class="reuse-card green">
+        <div class="reuse-icon">🔄</div>
+        <div class="reuse-title hg">Manutenzione automatizzata</div>
+        <div class="reuse-body">
+          Quando il portale evolve, <span style="font-family:monospace; color:var(--green);">/update-mission</span>
+          individua le differenze tra screenshot vecchi e nuovi e
+          <strong>rigenera solo ciò che è cambiato</strong>, senza riscrivere tutto.
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 7. FLUSSO DI CREAZIONE -->
@@ -599,13 +677,23 @@
       </div>
       <div class="tw-item">
         <span class="tw-icon">›</span>
-        <span><strong>Manutenibile</strong>: quando il portale cambia, basta <span class="hp" style="font-family:monospace; font-size:.85em;">/update-mission</span></span>
+        <span>Skill e agenti <strong>riusabili</strong>: funzionano su qualsiasi portale, il costo cala ad ogni missione</span>
       </div>
       <div class="tw-item">
         <span class="tw-icon">›</span>
-        <span><strong>Scalabile</strong>: nuove missioni in pochi minuti con XLSX o /batch-generate</span>
+        <span><strong>Manutenibile</strong>: quando il portale cambia, basta <span class="hp" style="font-family:monospace; font-size:.85em;">/update-mission</span></span>
       </div>
     </div>
+  </div>
+
+  <!-- 9. DEMO (spostata alla fine) -->
+  <div class="slide text-center" data-index="8">
+    <div class="eyebrow">Live demo</div>
+    <h2>Proviamolo <span class="hp">insieme</span></h2>
+    <p class="tagline">Apri l'applicativo e segui una missione dal vivo</p>
+    <a class="demo-btn" href="../app/index.html" target="_blank">
+      ▶&nbsp; Apri Portal Simulator
+    </a>
   </div>
 
 </div>
@@ -615,7 +703,7 @@
   <span class="copy">© 2026 Accenture. Confidential. For internal use only.</span>
   <div class="nav">
     <button id="btn-prev" onclick="navigate(-1)" disabled>←</button>
-    <span class="nav-counter" id="counter">1 / 8</span>
+    <span class="nav-counter" id="counter">1 / 9</span>
     <button id="btn-next" onclick="navigate(1)">→</button>
   </div>
 </footer>
