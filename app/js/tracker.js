@@ -42,12 +42,12 @@ const Tracker = (() => {
     // Valuta e reindirizza al risultato
     const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
     if (!mission.steps) {
-      window.location.href = '../result.html';
+      window.location.href = '../../result.html';
       return;
     }
     const result = evaluate(mission.steps, log);
     sessionStorage.setItem('sessionResult', JSON.stringify(result));
-    window.location.href = '../result.html';
+    window.location.href = '../../result.html';
   }
 
   return { init, record, getLog, reset, complete };

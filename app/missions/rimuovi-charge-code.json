@@ -1,0 +1,34 @@
+{
+  "id": "rimuovi-charge-code",
+  "title": "Rimuovi un charge code",
+  "description": "Impara a selezionare e rimuovere dalla lista i codici progetto non più necessari.",
+  "icon": "🗑️",
+  "difficulty": "base",
+  "estimatedMinutes": 2,
+  "explanation": "Se hai charge code obsoleti o non più assegnati, puoi rimuoverli dalla tua lista. Seleziona uno o più codici tramite le checkbox e usa il bottone 'Elimina selezionati'. Prima di procedere il portale ti chiederà una conferma.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Seleziona almeno un codice dalla tabella usando la checkbox",
+      "action": "click",
+      "target": "checkboxRow",
+      "errorMessage": "Non hai selezionato nessun codice dalla tabella."
+    },
+    {
+      "id": "step-2",
+      "description": "Clicca il bottone 'Elimina selezionati' (diventa rosso con la selezione)",
+      "action": "click",
+      "target": "eliminaSelezionatiBtn",
+      "errorMessage": "Non hai cliccato 'Elimina selezionati'."
+    },
+    {
+      "id": "step-3",
+      "description": "Nel modal di conferma, clicca 'Elimina' per procedere",
+      "action": "click",
+      "target": "confermaEliminaBtn",
+      "errorMessage": "Non hai confermato l'eliminazione nel modal di conferma."
+    }
+  ],
+  "simulator": "missions/simulators/codici-progetto.html",
+  "successMessage": "Ottimo! Hai rimosso correttamente i codici selezionati dalla tua lista timesheet."
+}

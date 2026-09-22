@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulatore — Codici Progetto</title>
+  <script src="../../js/tracker.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F3F4F6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Simulator bar ── */
+    .sim-bar {
+      background: #0f0f1a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+      z-index: 100;
+      border-bottom: 2px solid #A100FF;
+    }
+    .sim-bar-left { display: flex; align-items: center; gap: 10px; }
+    .sim-badge {
+      background: #A100FF;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .sim-mission-title { color: #cbd5e1; font-size: 13px; }
+    .sim-complete-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sim-complete-btn:hover { background: #15803d; }
+
+    /* ── Portal wrapper ── */
+    .portal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Portal header ── */
+    .pt-header {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      height: 52px;
+      flex-shrink: 0;
+      gap: 0;
+    }
+    .pt-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-right: 32px;
+      white-space: nowrap;
+    }
+    .pt-logo em { color: #10B981; font-style: normal; }
+    .pt-nav { display: flex; flex: 1; }
+    .pt-tab {
+      padding: 0 16px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #6B7280;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pt-tab:hover { color: #374151; background: #F9FAFB; }
+    .pt-tab.active { color: #4F46E5; border-bottom-color: #4F46E5; font-weight: 500; }
+    .pt-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .pt-icon-btn {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #6B7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pt-avatar {
+      background: #4F46E5;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ── Date bar ── */
+    .pt-date-bar {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 6px 24px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .pt-date-nav {
+      background: white;
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #374151;
+    }
+    .pt-date-nav:hover { background: #F9FAFB; }
+    .pt-date { font-size: 14px; font-weight: 500; color: #374151; padding: 0 8px; }
+
+    /* ── Main content ── */
+    .pt-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: #F9FAFB;
+    }
+
+    /* ── Add section ── */
+    .add-section {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .add-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .add-form { display: flex; align-items: flex-end; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: #6B7280; }
+    .form-group input {
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus {
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    .btn-cerca {
+      background: #4F46E5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cerca:hover { background: #4338CA; }
+
+    /* ── Table section ── */
+    .table-section {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid #E5E7EB;
+    }
+    .table-count { font-size: 14px; color: #374151; }
+    .btn-elimina-sel {
+      background: none;
+      border: 1px solid #D1D5DB;
+      color: #9CA3AF;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: not-allowed;
+      transition: all 0.15s;
+    }
+    .btn-elimina-sel.active {
+      border-color: #DC2626;
+      color: #DC2626;
+      cursor: pointer;
+    }
+    .btn-elimina-sel.active:hover { background: #FEF2F2; }
+
+    .codes-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .codes-table th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      border-bottom: 1px solid #E5E7EB;
+      white-space: nowrap;
+      background: white;
+    }
+    .codes-table td {
+      padding: 12px 12px;
+      color: #374151;
+      border-bottom: 1px solid #F3F4F6;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .codes-table tr:last-child td { border-bottom: none; }
+    .codes-table tr:hover td { background: #F9FAFB; }
+    .codes-table tr.selected td { background: #EEF2FF; }
+    .codes-table input[type="checkbox"] {
+      width: 16px; height: 16px;
+      cursor: pointer;
+      accent-color: #4F46E5;
+    }
+    .codes-table th input[type="checkbox"] { accent-color: #4F46E5; }
+
+    /* Status pills */
+    .status-attivo {
+      background: #DCFCE7; color: #16A34A;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 500; white-space: nowrap;
+    }
+    .status-disattivo {
+      background: #F1F5F9; color: #64748B;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; white-space: nowrap;
+    }
+
+    /* Code tags */
+    .code-tag {
+      background: #EEF2FF; color: #4338CA;
+      padding: 3px 8px; border-radius: 4px;
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      width: 500px;
+      max-width: 92vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #F3F4F6;
+    }
+    .modal-head h2 { font-size: 18px; font-weight: 700; color: #111827; }
+    .modal-close {
+      background: none; border: none;
+      font-size: 18px; color: #9CA3AF;
+      cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    }
+    .modal-close:hover { color: #374151; background: #F3F4F6; }
+
+    .modal-body { padding: 20px 24px; }
+    .detail-block { margin-bottom: 14px; }
+    .detail-lbl {
+      font-size: 11px; font-weight: 600;
+      color: #9CA3AF; letter-spacing: 0.6px;
+      text-transform: uppercase; display: block; margin-bottom: 4px;
+    }
+    .detail-val { font-size: 14px; color: #374151; }
+    .code-badge-lg {
+      background: #EEF2FF; color: #4338CA;
+      padding: 4px 10px; border-radius: 5px;
+      font-size: 13px; font-weight: 600; display: inline-block;
+    }
+    .pill-green {
+      background: #DCFCE7; color: #16A34A;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 13px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .pill-red {
+      background: #FEE2E2; color: #DC2626;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 13px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .modal-warning {
+      background: #FFFBEB; border: 1px solid #FDE68A;
+      border-radius: 6px; padding: 10px 14px;
+      color: #92400E; font-size: 13px; margin-top: 4px;
+    }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 16px 24px 20px;
+    }
+    .btn-annulla {
+      background: white; border: 1px solid #D1D5DB;
+      color: #374151; border-radius: 6px;
+      padding: 8px 18px; font-size: 14px; cursor: pointer;
+    }
+    .btn-annulla:hover { background: #F9FAFB; }
+    .btn-aggiungi {
+      background: #4F46E5; color: white; border: none;
+      border-radius: 6px; padding: 8px 20px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+    }
+    .btn-aggiungi:hover { background: #4338CA; }
+    .btn-elimina-red {
+      background: white; border: 1px solid #DC2626;
+      color: #DC2626; border-radius: 6px;
+      padding: 8px 20px; font-size: 14px; font-weight: 500; cursor: pointer;
+    }
+    .btn-elimina-red:hover { background: #FEF2F2; }
+
+    /* Not found modal */
+    .modal-nf .modal-body { text-align: center; padding: 28px 24px; }
+    .nf-icon { font-size: 44px; margin-bottom: 14px; }
+    .nf-title { font-size: 17px; font-weight: 700; color: #111827; margin-bottom: 6px; }
+    .nf-subtitle { font-size: 13px; color: #6B7280; }
+    .modal-nf .modal-footer { justify-content: center; padding-top: 8px; }
+    .btn-riprova {
+      background: white; border: 1px solid #D1D5DB;
+      color: #374151; border-radius: 6px;
+      padding: 8px 28px; font-size: 14px; cursor: pointer;
+    }
+    .btn-riprova:hover { background: #F9FAFB; }
+
+    /* Confirm delete modal */
+    .modal-confirm .modal-body { text-align: center; padding: 24px 24px 12px; }
+    .confirm-icon { font-size: 36px; margin-bottom: 12px; }
+    .confirm-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+    .confirm-sub { font-size: 13px; color: #6B7280; line-height: 1.5; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1C1C1E; color: white;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border-left: 4px solid #22C55E;
+      z-index: 400;
+      animation: toastIn 0.25s ease;
+    }
+    @keyframes toastIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Simulator bar ── -->
+  <div class="sim-bar">
+    <div class="sim-bar-left">
+      <span class="sim-badge">SIMULATORE</span>
+      <span class="sim-mission-title" id="simTitle">Codici Progetto</span>
+    </div>
+    <button class="sim-complete-btn" onclick="Tracker.complete()">✓ Completa missione</button>
+  </div>
+
+  <!-- ── Portal ── -->
+  <div class="portal">
+
+    <!-- Header -->
+    <header class="pt-header">
+      <div class="pt-logo"><em>Time</em>Track</div>
+      <nav class="pt-nav">
+        <span class="pt-tab">Ore</span>
+        <span class="pt-tab">Spese</span>
+        <span class="pt-tab">Sedi</span>
+        <span class="pt-tab active">Codici Progetto</span>
+        <span class="pt-tab">Rettifiche</span>
+        <span class="pt-tab">Riepilogo</span>
+        <span class="pt-tab">Preferenze</span>
+      </nav>
+      <div class="pt-header-right">
+        <button class="pt-icon-btn">🔔</button>
+        <button class="pt-icon-btn">?</button>
+        <button class="pt-icon-btn">⚙</button>
+        <div class="pt-avatar">MR</div>
+      </div>
+    </header>
+
+    <!-- Date bar -->
+    <div class="pt-date-bar">
+      <button class="pt-date-nav">‹</button>
+      <span class="pt-date">30/09/2026</span>
+      <button class="pt-date-nav">›</button>
+      <button class="pt-date-nav">📅</button>
+    </div>
+
+    <!-- Main -->
+    <main class="pt-main">
+
+      <!-- Add code section -->
+      <div class="add-section">
+        <div class="add-section-title">AGGIUNGI CODICE PROGETTO</div>
+        <div class="add-form">
+          <div class="form-group">
+            <label>Codice progetto</label>
+            <input
+              type="text"
+              id="searchField"
+              placeholder="es. 994W01"
+              data-track-id="searchInput"
+            />
+          </div>
+          <button class="btn-cerca" data-track-id="cercaBtn" onclick="searchCode()">Cerca</button>
+        </div>
+      </div>
+
+      <!-- Table section -->
+      <div class="table-section">
+        <div class="table-header-row">
+          <span class="table-count">I tuoi codici progetto: <strong id="codeCount">7</strong></span>
+          <button class="btn-elimina-sel" id="eliminaBtn" data-track-id="eliminaSelezionatiBtn" onclick="openConfirmDelete()">Elimina selezionati</button>
+        </div>
+        <table class="codes-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAll" onchange="toggleAll(this)" /></th>
+              <th>Stato ↕</th>
+              <th>Tipo ↕</th>
+              <th>Sottotipo ↕</th>
+              <th>Cliente ↕</th>
+              <th>Paese / Regione ↕</th>
+              <th>Descrizione ↕</th>
+              <th>Codice ↕</th>
+              <th>Responsabile ↕</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── Modal: Dettagli codice (disponibile) ── -->
+  <div class="modal-overlay" id="modalDettagli" style="display:none">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Dettagli codice</h2>
+        <button class="modal-close" onclick="closeModal('modalDettagli')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-block">
+          <span class="detail-lbl">Codice</span>
+          <span class="code-badge-lg" id="detCodice">PLT2024A</span>
+        </div>
+        <div class="detail-block">
+          <span class="detail-lbl">Descrizione</span>
+          <span class="detail-val" id="detDescrizione">—</span>
+        </div>
+        <div class="detail-block">
+          <span class="detail-lbl">Tipo</span>
+          <span class="detail-val" id="detTipo">—</span>
+        </div>
+        <div class="detail-block" id="detSottotipoBlock" style="display:none">
+          <span class="detail-lbl">Sottotipo</span>
+          <span class="detail-val" id="detSottotipo">—</span>
+        </div>
+        <div class="detail-block">
+          <span class="detail-lbl">Stato</span>
+          <span class="pill-green">● Disponibile</span>
+        </div>
+        <div class="modal-warning" id="detWarning" style="display:none">
+          Questo codice è già presente nella tua lista.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-annulla" onclick="closeModal('modalDettagli')">Annulla</button>
+        <button class="btn-aggiungi" data-track-id="aggiungiBtn" onclick="aggiungiCodice()">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Codice non trovato ── -->
+  <div class="modal-overlay" id="modalNonTrovato" style="display:none">
+    <div class="modal modal-nf">
+      <div class="modal-head">
+        <h2>Codice non trovato</h2>
+        <button class="modal-close" onclick="closeModal('modalNonTrovato')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="nf-icon">⚠️</div>
+        <div class="nf-title">Il codice "<span id="nfCode">XXXXX</span>" non esiste.</div>
+        <div class="nf-subtitle">Verifica il codice e riprova.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-riprova" data-track-id="riprovaBtn" onclick="closeModal('modalNonTrovato')">Riprova</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Conferma eliminazione ── -->
+  <div class="modal-overlay" id="modalConferma" style="display:none">
+    <div class="modal modal-confirm">
+      <div class="modal-head">
+        <h2>Conferma eliminazione</h2>
+        <button class="modal-close" onclick="closeModal('modalConferma')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-icon">🗑️</div>
+        <div class="confirm-title">Vuoi eliminare <span id="confirmCount">1</span> codice/i selezionato/i?</div>
+        <div class="confirm-sub">Questa azione rimuoverà i codici dalla tua lista.<br/>Potrai aggiungerli di nuovo in qualsiasi momento.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-annulla" onclick="closeModal('modalConferma')">Annulla</button>
+        <button class="btn-elimina-red" data-track-id="confermaEliminaBtn" onclick="confermaElimina()">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Data ──────────────────────────────────────────────────────────
+    let rows = [
+      { id: 1, stato: 'Attivo',    tipo: 'Business Dev.',  sottotipo: 'Opportunity Pursuit', cliente: 'Banca Esempio S.p.A.',   paese: 'Italy', descrizione: 'BDOPP_DEMO FY26 - Core Banking Renewal',     codice: 'CWC0K001', resp: 'mario.rossi' },
+      { id: 2, stato: 'Disattivo', tipo: 'Business Dev.',  sottotipo: 'Opportunity Pursuit', cliente: 'Assicura Italia S.p.A.', paese: 'Italy', descrizione: 'BDOPP_DEMO FY26 - Digital Claims Platform', codice: 'CWE5R001', resp: 'mario.rossi' },
+      { id: 3, stato: 'Attivo',    tipo: 'Chargeable',     sottotipo: '',                    cliente: 'Motorex Europe S.p.A.',  paese: 'Italy', descrizione: 'CTUR9001 - Italy Operations',              codice: 'CTUR9003', resp: 'mario.rossi' },
+      { id: 4, stato: 'Attivo',    tipo: 'Assenza',        sottotipo: 'Assenza',             cliente: '—',                      paese: '—',     descrizione: 'Ferie',                                    codice: '994W01',   resp: '—' },
+      { id: 5, stato: 'Attivo',    tipo: 'Assenza',        sottotipo: 'Assenza',             cliente: '—',                      paese: '—',     descrizione: 'Festività',                                codice: '993W01',   resp: '—' },
+      { id: 6, stato: 'Attivo',    tipo: 'Assenza',        sottotipo: 'Assenza',             cliente: '—',                      paese: '—',     descrizione: 'Malattia dipendente',                      codice: '992W01',   resp: '—' },
+      { id: 7, stato: 'Attivo',    tipo: 'Chargeable',     sottotipo: '',                    cliente: 'Pharma Group S.p.A.',    paese: 'Italy', descrizione: 'PLT2024A - Platform Modernization',        codice: 'PLT2024A', resp: 'giulia.bianchi' }
+    ];
+
+    const DB = {
+      'PLT2024A': { codice: 'PLT2024A', descrizione: 'PLT2024A - Platform Modernization', tipo: 'Chargeable', sottotipo: '' }
+    };
+
+    let selected = new Set();
+    let pendingAdd = null;
+
+    // ── Init ──────────────────────────────────────────────────────────
+    (function init() {
+      const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (mission.title) document.getElementById('simTitle').textContent = mission.title;
+      renderTable();
+    })();
+
+    // ── Table ─────────────────────────────────────────────────────────
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = rows.map(r => `
+        <tr id="row-${r.id}" class="${selected.has(r.id) ? 'selected' : ''}">
+          <td><input type="checkbox" data-track-id="checkboxRow" data-id="${r.id}" ${selected.has(r.id) ? 'checked' : ''} onchange="toggleRow(${r.id}, this)" /></td>
+          <td><span class="${r.stato === 'Attivo' ? 'status-attivo' : 'status-disattivo'}">● ${r.stato}</span></td>
+          <td>${r.tipo}</td>
+          <td>${r.sottotipo || '—'}</td>
+          <td>${r.cliente}</td>
+          <td>${r.paese}</td>
+          <td>${r.descrizione}</td>
+          <td><span class="code-tag">${r.codice}</span></td>
+          <td>${r.resp}</td>
+        </tr>`).join('');
+      document.getElementById('codeCount').textContent = rows.length;
+      updateEliminaBtn();
+    }
+
+    function toggleRow(id, cb) {
+      if (cb.checked) selected.add(id); else selected.delete(id);
+      const tr = document.getElementById('row-' + id);
+      if (tr) tr.className = cb.checked ? 'selected' : '';
+      document.getElementById('selectAll').checked = selected.size === rows.length;
+      updateEliminaBtn();
+    }
+
+    function toggleAll(masterCb) {
+      rows.forEach(r => {
+        const cb = document.querySelector(`[data-id="${r.id}"]`);
+        if (cb) {
+          cb.checked = masterCb.checked;
+          const tr = document.getElementById('row-' + r.id);
+          if (tr) tr.className = masterCb.checked ? 'selected' : '';
+        }
+        if (masterCb.checked) selected.add(r.id); else selected.delete(r.id);
+      });
+      updateEliminaBtn();
+    }
+
+    function updateEliminaBtn() {
+      const btn = document.getElementById('eliminaBtn');
+      if (selected.size > 0) {
+        btn.classList.add('active');
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.classList.remove('active');
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+
+    // ── Search ────────────────────────────────────────────────────────
+    function searchCode() {
+      const val = document.getElementById('searchField').value.trim().toUpperCase();
+      if (!val) return;
+
+      if (DB[val]) {
+        const found = DB[val];
+        const alreadyIn = rows.some(r => r.codice === val);
+        pendingAdd = found;
+
+        document.getElementById('detCodice').textContent = found.codice;
+        document.getElementById('detDescrizione').textContent = found.descrizione;
+        document.getElementById('detTipo').textContent = found.tipo;
+
+        const sottotipoBlock = document.getElementById('detSottotipoBlock');
+        if (found.sottotipo) {
+          document.getElementById('detSottotipo').textContent = found.sottotipo;
+          sottotipoBlock.style.display = '';
+        } else {
+          sottotipoBlock.style.display = 'none';
+        }
+
+        document.getElementById('detWarning').style.display = alreadyIn ? '' : 'none';
+        openModal('modalDettagli');
+      } else {
+        document.getElementById('nfCode').textContent = val;
+        openModal('modalNonTrovato');
+      }
+    }
+
+    function aggiungiCodice() {
+      if (!pendingAdd) return;
+      const alreadyIn = rows.some(r => r.codice === pendingAdd.codice);
+      closeModal('modalDettagli');
+      if (!alreadyIn) {
+        rows.push({
+          id: Date.now(),
+          stato: 'Attivo',
+          tipo: pendingAdd.tipo,
+          sottotipo: pendingAdd.sottotipo || '',
+          cliente: '—',
+          paese: '—',
+          descrizione: pendingAdd.descrizione,
+          codice: pendingAdd.codice,
+          resp: 'mario.rossi'
+        });
+        renderTable();
+        showToast('Codice ' + pendingAdd.codice + ' aggiunto.');
+      } else {
+        showToast('Codice già presente nella lista.');
+      }
+      document.getElementById('searchField').value = '';
+      pendingAdd = null;
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────
+    function openConfirmDelete() {
+      if (selected.size === 0) return;
+      document.getElementById('confirmCount').textContent = selected.size;
+      openModal('modalConferma');
+    }
+
+    function confermaElimina() {
+      const count = selected.size;
+      rows = rows.filter(r => !selected.has(r.id));
+      selected.clear();
+      renderTable();
+      closeModal('modalConferma');
+      showToast(count + ' codice/i eliminato/i.');
+    }
+
+    // ── Modal helpers ─────────────────────────────────────────────────
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg) {
+      if (toastTimer) { clearTimeout(toastTimer); removeToast(); }
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.id = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      toastTimer = setTimeout(removeToast, 2800);
+    }
+
+    function removeToast() {
+      const t = document.getElementById('toast');
+      if (t) t.remove();
+      toastTimer = null;
+    }
+  </script>
+
+</body>
+</html>

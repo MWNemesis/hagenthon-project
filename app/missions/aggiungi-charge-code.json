@@ -1,0 +1,41 @@
+{
+  "id": "aggiungi-charge-code",
+  "title": "Aggiungi un charge code",
+  "description": "Impara ad aggiungere un codice progetto alla tua lista timesheet, inclusa la gestione di un codice inesistente.",
+  "icon": "🏷️",
+  "difficulty": "base",
+  "estimatedMinutes": 3,
+  "explanation": "Nella sezione 'Codici Progetto' del timesheet puoi aggiungere i codici dei progetti a cui sei assegnato. Si usa il campo di ricerca per trovare il codice e poi lo si aggiunge alla lista. Attenzione: se il codice non esiste, il portale mostrerà un errore. In questa missione proverai prima con un codice sbagliato (XXXXX) e poi aggiungerai il codice PLT2024A.",
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Digita XXXXX nel campo 'Codice progetto'",
+      "action": "fill",
+      "target": "searchInput",
+      "errorMessage": "Non hai digitato nulla nel campo di ricerca."
+    },
+    {
+      "id": "step-2",
+      "description": "Clicca 'Cerca' — apparirà un errore: codice non trovato",
+      "action": "click",
+      "target": "cercaBtn",
+      "errorMessage": "Non hai cliccato il bottone 'Cerca'."
+    },
+    {
+      "id": "step-3",
+      "description": "Nel modal di errore, clicca 'Riprova'",
+      "action": "click",
+      "target": "riprovaBtn",
+      "errorMessage": "Non hai gestito il caso di codice non trovato: dovevi cliccare 'Riprova'."
+    },
+    {
+      "id": "step-4",
+      "description": "Digita PLT2024A, clicca di nuovo 'Cerca' e poi clicca 'Aggiungi'",
+      "action": "click",
+      "target": "aggiungiBtn",
+      "errorMessage": "Non hai completato l'aggiunta del codice: dovevi cliccare 'Aggiungi' nel modal dei dettagli."
+    }
+  ],
+  "simulator": "missions/simulators/codici-progetto.html",
+  "successMessage": "Ottimo! Sai come aggiungere un charge code e come gestire un codice inesistente."
+}
