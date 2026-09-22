@@ -19,10 +19,12 @@
     <div class="result-card">
 
       <div id="result-header" class="result-header">
+        <div id="retry-badge" class="retry-badge" style="display:none"></div>
         <div id="result-icon" class="result-icon-wrap"></div>
         <h2 id="result-title"></h2>
         <p id="result-subtitle" class="subtitle"></p>
         <div class="result-score" id="result-score"></div>
+        <div id="improvement-row" class="improvement-row" style="display:none"></div>
       </div>
 
       <div class="result-body">
@@ -87,9 +89,36 @@
           </div>
         </div>`).join('');
 
-      document.getElementById('btn-retry').href = mission.id
-        ? `mission.html?id=${mission.id}`
-        : 'index.html';
+      // Retry tracking
+      const retryCount = parseInt(sessionStorage.getItem('retryCount') || '1');
+      const prevScore  = parseInt(sessionStorage.getItem('prevScore')  ?? '-1');
+
+      if (retryCount > 1) {
+        const badge = document.getElementById('retry-badge');
+        badge.textContent = `Tentativo ${retryCount}`;
+        badge.style.display = 'inline-block';
+      }
+
+      if (retryCount > 1 && prevScore >= 0) {
+        const delta = correct - prevScore;
+        const row = document.getElementById('improvement-row');
+        row.style.display = 'flex';
+        if (delta > 0) {
+          row.innerHTML = `<span class="improvement improvement-up">↑ +${delta} ${delta > 1 ? 'passaggi corretti' : 'passaggio corretto'} rispetto al tentativo precedente</span>`;
+        } else if (delta < 0) {
+          row.innerHTML = `<span class="improvement improvement-down">↓ ${delta} rispetto al tentativo precedente</span>`;
+        } else {
+          row.innerHTML = `<span class="improvement improvement-same">= Stesso risultato del tentativo precedente</span>`;
+        }
+      }
+
+      // Retry button — salva il punteggio corrente prima di ricominciare
+      const btnRetry = document.getElementById('btn-retry');
+      btnRetry.href = mission.id ? `mission.html?id=${mission.id}` : 'index.html';
+      btnRetry.addEventListener('click', () => {
+        sessionStorage.setItem('prevScore',   String(correct));
+        sessionStorage.setItem('retryCount',  String(retryCount + 1));
+      });
     }
 
     renderResult();

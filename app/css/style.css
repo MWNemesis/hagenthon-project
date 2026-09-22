@@ -620,6 +620,36 @@ body {
 .score-lbl { font-size: .7rem; color: var(--gray-400); margin-top: .1rem; letter-spacing: .05em; text-transform: uppercase; }
 .score-divider { width: 1px; height: 32px; background: var(--gray-300); }
 
+/* Retry badge e improvement row */
+.retry-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.12);
+  color: var(--gray-600);
+  padding: .25rem .75rem;
+  border-radius: 20px;
+  margin-bottom: .75rem;
+}
+
+.improvement-row {
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.improvement {
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .3rem .9rem;
+  border-radius: 20px;
+}
+
+.improvement-up   { background: rgba(22,163,74,.12);  color: #15803d; }
+.improvement-down { background: rgba(220,38,38,.12);  color: #991b1b; }
+.improvement-same { background: rgba(0,0,0,.07);      color: var(--gray-600); }
+
 .result-body { padding: 1.5rem 2rem; }
 
 .result-body-title {

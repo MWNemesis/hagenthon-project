@@ -17,9 +17,9 @@
 
   <div class="hero">
     <div class="hero-inner">
-      <div class="hero-eyebrow">✦ Training Portal</div>
+      <div class="hero-eyebrow">✦ Training Portal — per nuovi utenti del portale</div>
       <h1>Impara facendo,<br/>non leggendo.</h1>
-      <p>Scegli una missione, segui le istruzioni e mettiti alla prova nel simulatore del portale aziendale.</p>
+      <p>Scegli una missione, segui le istruzioni passo per passo e mettiti alla prova nel simulatore del portale aziendale. Nessun rischio di fare errori sul sistema reale.</p>
       <div class="hero-stats" id="hero-stats">
         <div class="hero-stat">
           <div class="hero-stat-num" id="stat-total">—</div>
@@ -129,7 +129,11 @@
 
     function goMission(id) {
       const m = allMissions.find(m => m.id === id);
-      if (m) sessionStorage.setItem('currentMission', JSON.stringify(m));
+      if (m) {
+        sessionStorage.setItem('currentMission', JSON.stringify(m));
+        sessionStorage.setItem('retryCount', '1');
+        sessionStorage.removeItem('prevScore');
+      }
     }
 
     function missionCard(m) {

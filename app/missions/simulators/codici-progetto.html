@@ -395,8 +395,38 @@
     }
     @keyframes toastIn {
       from { transform: translateY(12px); opacity: 0; }
-      to   { transform: translateY(0);   opacity: 1; }
+      to   { transform: translateY(0);    opacity: 1; }
     }
+
+    /* ── Hint card ── */
+    .hint-card {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1b4b;
+      color: white;
+      border: 1px solid #4f46e5;
+      border-radius: 12px;
+      padding: 14px 18px;
+      max-width: 440px;
+      width: calc(100% - 48px);
+      box-shadow: 0 8px 32px rgba(79,70,229,.35);
+      z-index: 350;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: toastIn .3s ease;
+    }
+    .hint-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .hint-text { flex: 1; }
+    .hint-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #a5b4fc; margin-bottom: 3px; }
+    .hint-msg   { font-size: 14px; color: #e0e7ff; line-height: 1.4; }
+    .hint-close {
+      background: none; border: none; color: #a5b4fc;
+      font-size: 16px; cursor: pointer; padding: 0 2px; flex-shrink: 0;
+    }
+    .hint-close:hover { color: white; }
   </style>
 </head>
 <body>
@@ -737,6 +767,55 @@
       const t = document.getElementById('toast');
       if (t) t.remove();
       toastTimer = null;
+    }
+
+    // ── Hint system (rilevamento del blocco) ──────────────────────────
+    const HINT_DELAY = 20000; // 20 secondi di inattività
+    let lastInteraction = Date.now();
+    let hintActive = false;
+
+    ['click', 'keydown', 'touchstart'].forEach(ev =>
+      document.addEventListener(ev, () => {
+        lastInteraction = Date.now();
+        if (hintActive) dismissHint();
+      }, { passive: true })
+    );
+
+    setInterval(() => {
+      if (hintActive) return;
+      if (Date.now() - lastInteraction < HINT_DELAY) return;
+      showNextHint();
+    }, 2000);
+
+    function showNextHint() {
+      const mission = JSON.parse(sessionStorage.getItem('currentMission') || '{}');
+      if (!mission.steps) return;
+
+      const log = Tracker.getLog();
+      const nextStep = mission.steps.find(step =>
+        !log.some(a => a.action === step.action && a.targetId === step.target)
+      );
+      if (!nextStep) return;
+
+      hintActive = true;
+      const card = document.createElement('div');
+      card.className = 'hint-card';
+      card.id = 'hint-card';
+      card.innerHTML = `
+        <span class="hint-icon">💡</span>
+        <div class="hint-text">
+          <div class="hint-label">Suggerimento</div>
+          <div class="hint-msg">${nextStep.description}</div>
+        </div>
+        <button class="hint-close" onclick="dismissHint()">✕</button>`;
+      document.body.appendChild(card);
+    }
+
+    function dismissHint() {
+      const card = document.getElementById('hint-card');
+      if (card) card.remove();
+      hintActive = false;
+      lastInteraction = Date.now();
     }
   </script>
 
