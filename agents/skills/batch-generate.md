@@ -156,8 +156,6 @@ Per ogni agent passa:
 
 Mostra il progresso a mano a mano che gli agent completano:
 
-Per ogni missione nella lista, senza interrompere lo sviluppatore:
-
 ```
 [1/3] ██████████░░░░░░░░░░ Generazione: Creare un ticket di supporto
   ├─ JSON generato              ✅
